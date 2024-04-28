@@ -9,8 +9,9 @@ import java.util.UUID;
 @Data
 @Builder
 @EventSourced
-public class AccountCreatedEvent {
+public class CashDepositedEvent {
     private UUID id;
     private String name;
     private Double balance;
+    private int version;
 }

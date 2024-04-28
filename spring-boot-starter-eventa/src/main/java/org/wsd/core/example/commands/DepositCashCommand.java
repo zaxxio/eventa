@@ -1,15 +1,15 @@
-package org.wsd.core.example.events;
+package org.wsd.core.example.commands;
 
 import lombok.Builder;
 import lombok.Data;
-import org.wsd.core.streotype.EventSourced;
+import org.wsd.core.streotype.Command;
 
 import java.util.UUID;
 
 @Data
 @Builder
-@EventSourced
-public class AccountCreatedEvent {
+@Command
+public class DepositCashCommand {
     private UUID id;
     private String name;
     private Double balance;

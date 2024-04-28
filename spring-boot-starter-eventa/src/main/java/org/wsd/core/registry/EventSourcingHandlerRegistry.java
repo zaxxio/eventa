@@ -1,26 +1,23 @@
 package org.wsd.core.registry;
 
+import lombok.Getter;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@Getter
+@Lazy
 @Component
-public class EventHandlerRegistry {
+public class EventSourcingHandlerRegistry {
     private final Map<Class<?>, List<Method>> eventSourcingHandler = new HashMap<>();
 
     public void registerHandler(Class<?> type, Method method) {
-        eventSourcingHandler.computeIfAbsent(type, methods -> new LinkedList<>()).add(method);
+        eventSourcingHandler.computeIfAbsent(type, methods -> new ArrayList<>()).add(method);
     }
 
     public Method getHandler(Class<?> commandType) {
-        return getMethod(commandType, eventSourcingHandler);
-    }
-
-    static Method getMethod(Class<?> commandType, Map<Class<?>, List<Method>> eventSourcingHandler) {
         List<Method> methods = eventSourcingHandler.get(commandType);
         if (methods == null && !methods.isEmpty()) {
             throw new RuntimeException("No EventSourcing Handler is registered");
@@ -30,4 +27,5 @@ public class EventHandlerRegistry {
         }
         return methods.get(0);
     }
+
 }
