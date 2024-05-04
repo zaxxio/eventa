@@ -1,15 +1,22 @@
 package org.wsd.core.config;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.wsd.core.registry.CommandHandlerRegistry;
 
+@Log4j2
 @AutoConfiguration
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(EventaProperties.class)
+@ComponentScan(basePackages = "org.wsd.core")
 public class EventaAutoConfiguration {
+
+    @PostConstruct
+    public void EventaAutoConfiguration() {
+        log.info("Eventa Auto Configuration.");
+    }
+
 }
