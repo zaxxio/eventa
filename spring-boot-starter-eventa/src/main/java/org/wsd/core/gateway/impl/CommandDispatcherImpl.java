@@ -27,7 +27,9 @@ public class CommandDispatcherImpl implements CommandDispatcher, ApplicationCont
     private final EventStore eventStore;
 
     private CommandDispatcherImpl(List<CommandInterceptor> interceptors,
-                                  CommandHandlerRegistry commandHandlerRegistry, AggregateFactory aggregateFactory, EventStore eventStore) {
+                                  CommandHandlerRegistry commandHandlerRegistry,
+                                  AggregateFactory aggregateFactory,
+                                  EventStore eventStore) {
         this.interceptors = interceptors;
         this.commandHandlerRegistry = commandHandlerRegistry;
         this.aggregateFactory = aggregateFactory;
@@ -41,6 +43,10 @@ public class CommandDispatcherImpl implements CommandDispatcher, ApplicationCont
         if (commandHandlerMethod != null) {
             Class<?> aggregateClazz = commandHandlerMethod.getDeclaringClass();
             UUID aggregateId = command.getId(); // Assuming command contains a method to get the aggregate ID
+            boolean constructor = isConstructor(commandHandlerMethod);
+            if (constructor) {
+                System.out.println("That's works!!"); // that will work
+            }
             AggregateRoot aggregate = aggregateFactory.loadAggregate(aggregateId, aggregateClazz.asSubclass(AggregateRoot.class));
             try {
                 commandHandlerMethod.invoke(aggregate, command);
@@ -56,5 +62,9 @@ public class CommandDispatcherImpl implements CommandDispatcher, ApplicationCont
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    private boolean isConstructor(Method method) {
+        return method.getDeclaringClass().getEnclosingConstructor() != null;
     }
 }

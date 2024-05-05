@@ -22,7 +22,7 @@ public class AggregateFactory {
     public <T extends AggregateRoot> T loadAggregate(UUID id, Class<T> aggregateClass) {
         List<BaseEvent> events = eventStore.getEventsFromAggregate(id);
         if (events.isEmpty()) {
-            throw new IllegalStateException("No events found for aggregate with ID: " + id);
+            return applicationContext.getBean(aggregateClass);
         }
         T aggregate = applicationContext.getBean(aggregateClass); // Creates an instance of the aggregate class
         aggregate.replayEvents(events);

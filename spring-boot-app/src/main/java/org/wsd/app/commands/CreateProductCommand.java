@@ -1,6 +1,5 @@
 package org.wsd.app.commands;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -13,4 +12,7 @@ import java.util.UUID;
 @SuperBuilder
 public class CreateProductCommand extends BaseCommand {
     private UUID id;
+    private String productName;
+    private Double quantity;
+    private Double price;
 }
