@@ -33,18 +33,6 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
         for (Map.Entry<String, Object> entry : aggregates.entrySet()) {
             Class<?> aClass = entry.getValue().getClass();
 
-            // Capture Constructor for Aggregate instance
-            Arrays.stream(aClass.getConstructors())
-                    .filter(constructor -> constructor.isAnnotationPresent(CommandHandler.class))
-                    .forEach(constructor -> {
-                        Class<?>[] parameterTypes = constructor.getParameterTypes();
-                        if (parameterTypes.length == 1) {
-                            commandHandlerRegistry.registerHandler(parameterTypes[0], constructor);
-                        } else {
-                            log.error("Problem");
-                        }
-                    });
-
             Arrays.stream(aClass.getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(CommandHandler.class))
                     .forEach(method -> {

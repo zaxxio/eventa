@@ -36,7 +36,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
     }
 
     public List<BaseEvent> getUncommitedChanges() {
-        return changes;
+        return this.changes;
     }
 
     public void markChangesAsCommitted() {
@@ -45,6 +45,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
 
     public void replayEvents(List<BaseEvent> events) {
         for (BaseEvent event : events) {
+            System.out.println("Applied Event's" + event);
             apply(event, false);
         }
     }

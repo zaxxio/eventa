@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface EventStore {
-    void save(UUID aggregateId, BaseEvent baseEvent, int expectedVersion);
+    void saveEvents(UUID aggregateId, String aggregateType, Iterable<BaseEvent> events, int expectedVersion) throws Exception;
     List<BaseEvent> getEventsFromAggregate(UUID aggregateId);
 }

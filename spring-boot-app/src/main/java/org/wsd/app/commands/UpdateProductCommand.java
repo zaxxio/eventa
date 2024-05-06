@@ -8,7 +8,7 @@ import org.wsd.core.commands.BaseCommand;
 @Getter
 @Setter
 @SuperBuilder
-public class CreateProductCommand extends BaseCommand {
+public class UpdateProductCommand extends BaseCommand {
     private String productName;
     private Double quantity;
     private Double price;

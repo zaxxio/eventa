@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: spring-boot-app
+  # Kafka Bootstrap Server's
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: my-consumer-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.UUIDDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+    listener:
+      missing-topics-fatal: false
+      ack-mode: manual
+  # Mongo DB
+  data:
+    mongodb:
+      repositories:
+        type: imperative
+      authentication-database: admin
+      auto-index-creation: true
+      database: eventstore
+      username: username
+      password: password
+      port: 27017
+      host: localhost
