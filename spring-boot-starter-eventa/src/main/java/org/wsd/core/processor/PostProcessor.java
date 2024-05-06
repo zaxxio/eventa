@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.wsd.core.registry.CommandHandlerRegistry;
 import org.wsd.core.registry.EventHandlerRegistry;
 import org.wsd.core.registry.EventSourcingHandlerRegistry;
+import org.wsd.core.registry.QueryHandlerRegistry;
 import org.wsd.core.streotype.*;
 
 import java.lang.reflect.Method;
@@ -26,6 +27,7 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
     private final CommandHandlerRegistry commandHandlerRegistry;
     private final EventSourcingHandlerRegistry eventSourcingHandlerRegistry;
     private final EventHandlerRegistry eventHandlerRegistry;
+    private final QueryHandlerRegistry queryHandlerRegistry;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -41,6 +43,17 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
                         Class<?>[] parameterTypes = method.getParameterTypes();
                         if (parameterTypes.length == 1) {
                             eventHandlerRegistry.registerHandler(parameterTypes[0], method);
+                        } else {
+                            log.error("Problem");
+                        }
+                    });
+
+            Arrays.stream(aClass.getDeclaredMethods())
+                    .filter(method -> method.isAnnotationPresent(QueryHandler.class))
+                    .forEach(method -> {
+                        Class<?>[] parameterTypes = method.getParameterTypes();
+                        if (parameterTypes.length == 1) {
+                            queryHandlerRegistry.registerHandler(parameterTypes[0], method);
                         } else {
                             log.error("Problem");
                         }
