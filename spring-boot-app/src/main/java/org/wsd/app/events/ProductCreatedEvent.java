@@ -1,13 +1,11 @@
 package org.wsd.app.events;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.wsd.core.events.BaseEvent;
 
 
+@ToString
 @Getter
 @Setter
 @SuperBuilder
