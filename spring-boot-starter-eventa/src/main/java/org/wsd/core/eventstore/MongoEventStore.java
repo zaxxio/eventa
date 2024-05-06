@@ -32,7 +32,6 @@ public class MongoEventStore implements EventStore {
         for (BaseEvent event : events) {
             version++;
             event.setVersion(version);
-
             final EventModel eventModel = EventModel.builder()
                     .timestamp(new Date())
                     .aggregateIdentifier(String.valueOf(aggregateId))
@@ -41,11 +40,8 @@ public class MongoEventStore implements EventStore {
                     .eventType(event.getClass().getTypeName())
                     .baseEvent(event)
                     .build();
-
             final EventModel persistedEventModel = eventStoreRepository.save(eventModel);
             if (persistedEventModel.getId() != null) {
-                // produce kafka event
-                System.out.println("Producing Event's");
                 eventProducer.produce(event.getClass().getSimpleName(), event);
             }
         }

@@ -17,6 +17,9 @@ public class KafkaEventConsumer implements EventConsumer {
     @KafkaListener(topicPattern = ".*Event$")
     public void consume(BaseEvent baseEvent, Acknowledgment acknowledgment) {
         eventDispatcher.dispatch(baseEvent);
+        acknowledgment.acknowledge();
     }
+
+
 }
 

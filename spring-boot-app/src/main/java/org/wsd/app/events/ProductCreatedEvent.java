@@ -5,7 +5,6 @@ import lombok.experimental.SuperBuilder;
 import org.wsd.core.events.BaseEvent;
 
 
-@ToString
 @Getter
 @Setter
 @SuperBuilder

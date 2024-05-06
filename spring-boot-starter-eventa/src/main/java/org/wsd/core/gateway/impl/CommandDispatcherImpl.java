@@ -64,7 +64,4 @@ public class CommandDispatcherImpl implements CommandDispatcher, ApplicationCont
         this.applicationContext = applicationContext;
     }
 
-    private boolean isConstructor(Method method) {
-        return method.getDeclaringClass().getEnclosingConstructor() != null;
-    }
 }
