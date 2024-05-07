@@ -5,11 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.wsd.app.model.ProductDTO;
 import org.wsd.app.query.FindByProductIdQuery;
 import org.wsd.app.query.ItemQuery;
-import org.wsd.core.gateway.QueryDispatcher;
-import org.wsd.core.query.ResponseType;
+import org.eventa.core.gateway.QueryDispatcher;
+import org.eventa.core.query.ResponseType;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +25,12 @@ public class QueryCommandHandler {
                 .builder()
                 .productId(id)
                 .build();
+        List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));
+        return ResponseEntity.ok(result);
+    }
 
+    @GetMapping("/items")
+    public ResponseEntity<?> getItem(UUID id) throws Exception {
         ItemQuery itemQuery = ItemQuery.builder().build();
         List<Integer> result = queryDispatcher.dispatch(itemQuery, ResponseType.multipleInstancesOf(Integer.class));
         return ResponseEntity.ok(result);

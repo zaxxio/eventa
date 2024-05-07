@@ -2,7 +2,7 @@ package org.wsd.app.events;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.wsd.core.events.BaseEvent;
+import org.eventa.core.events.BaseEvent;
 
 
 @Getter

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.wsd.app.commands.CreateProductCommand;
 import org.wsd.app.commands.UpdateProductCommand;
 import org.wsd.app.model.ProductDTO;
-import org.wsd.core.gateway.CommandDispatcher;
+import org.eventa.core.gateway.CommandDispatcher;
 
 @RestController
 @RequestMapping("/api/products")

@@ -5,10 +5,10 @@ import org.wsd.app.commands.CreateProductCommand;
 import org.wsd.app.commands.UpdateProductCommand;
 import org.wsd.app.events.ProductCreatedEvent;
 import org.wsd.app.events.ProductUpdatedEvent;
-import org.wsd.core.AggregateRoot;
-import org.wsd.core.streotype.Aggregate;
-import org.wsd.core.streotype.CommandHandler;
-import org.wsd.core.streotype.EventSourcingHandler;
+import org.eventa.core.aggregates.AggregateRoot;
+import org.eventa.core.streotype.Aggregate;
+import org.eventa.core.streotype.CommandHandler;
+import org.eventa.core.streotype.EventSourcingHandler;
 
 
 @Aggregate

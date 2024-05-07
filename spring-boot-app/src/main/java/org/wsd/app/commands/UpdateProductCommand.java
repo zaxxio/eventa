@@ -3,7 +3,7 @@ package org.wsd.app.commands;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.wsd.core.commands.BaseCommand;
+import org.eventa.core.commands.BaseCommand;
 
 @Getter
 @Setter

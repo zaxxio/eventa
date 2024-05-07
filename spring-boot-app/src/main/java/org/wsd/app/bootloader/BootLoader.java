@@ -3,10 +3,7 @@ package org.wsd.app.bootloader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.wsd.app.commands.CreateProductCommand;
-import org.wsd.core.gateway.CommandDispatcher;
-
-import java.util.UUID;
+import org.eventa.core.gateway.CommandDispatcher;
 
 @Component
 public class BootLoader implements CommandLineRunner {
