@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wsd.app.model.ProductDTO;
 import org.wsd.app.query.FindByProductIdQuery;
+import org.wsd.app.query.ItemQuery;
 import org.wsd.core.gateway.QueryDispatcher;
 import org.wsd.core.query.ResponseType;
 
@@ -25,7 +26,9 @@ public class QueryCommandHandler {
                 .builder()
                 .productId(id)
                 .build();
-        List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));
+
+        ItemQuery itemQuery = ItemQuery.builder().build();
+        List<Integer> result = queryDispatcher.dispatch(itemQuery, ResponseType.multipleInstancesOf(Integer.class));
         return ResponseEntity.ok(result);
     }
 }
