@@ -21,6 +21,7 @@ public class EventModel {
     private String aggregateIdentifier;
     private String aggregateType;
     private String eventType;
+    @Indexed
     private Integer version;
     private BaseEvent baseEvent;
     private Date timestamp;

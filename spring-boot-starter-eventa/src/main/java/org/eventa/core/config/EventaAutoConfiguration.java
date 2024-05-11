@@ -1,9 +1,9 @@
 package org.eventa.core.config;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.eventa.core.repository.EventStoreRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
@@ -20,21 +20,25 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableConfigurationProperties(EventaProperties.class)
 @EnableMongoRepositories(basePackageClasses = {EventStoreRepository.class})
 @ComponentScan(basePackages = "org.eventa.core")
+@PropertySource("classpath:application.properties")
+@RequiredArgsConstructor
 public class EventaAutoConfiguration {
 
 
-    @Autowired
-    private EventaProperties eventaProperties;
+    private final EventaProperties eventaProperties;
 
     @PostConstruct
     public void postConstruct() {
-        System.out.println("Hello World!!" + eventaProperties.getMongoDbUsername());
+        System.out.println("MongoDB Host: " + eventaProperties.getMongoDbHost());
+        System.out.println("MongoDB Username: " + eventaProperties.getMongoDbUsername());
+        System.out.println("MongoDB Database: " + eventaProperties.getMongoDbDatabase());
     }
 
     @Bean
-    MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
+    public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
+
 
     /*@Bean
     public SmartInstantiationAwareBeanPostProcessor customConstructorResolver() {

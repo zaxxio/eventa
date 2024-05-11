@@ -1,33 +1,35 @@
 package org.eventa.core.aggregates;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.eventa.core.registry.EventSourcingHandlerRegistry;
+import org.eventa.core.streotype.Snapshot;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.eventa.core.events.BaseEvent;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 public abstract class AggregateRoot implements ApplicationContextAware {
 
+    @Getter
     protected UUID id;
+    @Setter
+    @Getter
     protected int version = -1;
     private ApplicationContext applicationContext;
-    private List<BaseEvent> changes = new ArrayList<>();
+    private final List<BaseEvent> changes = new ArrayList<>();
+    private final int snapshotInterval;
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
-
-    public int getVersion() {
-        return version;
+    public AggregateRoot() {
+        Snapshot snapshotAnnotation = this.getClass().getAnnotation(Snapshot.class);
+        if (snapshotAnnotation != null) {
+            this.snapshotInterval = snapshotAnnotation.interval();
+        } else {
+            this.snapshotInterval = 100;
+        }
     }
 
     @Override
@@ -35,7 +37,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    public List<BaseEvent> getUncommitedChanges() {
+    public List<BaseEvent> getUncommittedChanges() {
         return this.changes;
     }
 
@@ -57,8 +59,13 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         handleEvent(baseEvent);
         if (isNewEvent) {
             changes.add(baseEvent);
+            if (version % snapshotInterval == 0) {
+                System.out.println("Snap");
+            }
         }
+        this.version++;
     }
+
 
     private void handleEvent(BaseEvent baseEvent) {
         EventSourcingHandlerRegistry registry = applicationContext.getBean(EventSourcingHandlerRegistry.class);
@@ -72,4 +79,6 @@ public abstract class AggregateRoot implements ApplicationContextAware {
             }
         }
     }
+
+
 }

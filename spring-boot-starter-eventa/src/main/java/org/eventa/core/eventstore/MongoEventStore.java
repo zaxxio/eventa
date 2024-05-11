@@ -6,7 +6,6 @@ import org.eventa.core.producer.EventProducer;
 import org.eventa.core.repository.EventStoreRepository;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -22,10 +21,12 @@ public class MongoEventStore implements EventStore {
     private final EventProducer eventProducer;
 
     @Override
-    @Transactional
-    public void saveEvents(UUID aggregateId, String aggregateType, Iterable<BaseEvent> events, int expectedVersion) throws Exception {
+    public void saveEvents(UUID aggregateId, String aggregateType, Iterable<BaseEvent> events, int expectedVersion, boolean constructor) throws Exception {
         List<EventModel> eventStream = eventStoreRepository.findByAggregateIdentifier(aggregateId.toString());
-        if (expectedVersion != -1 && eventStream.get(eventStream.size() - 1).getVersion() != expectedVersion) {
+        if (!eventStream.isEmpty() && expectedVersion != -1 && eventStream.get(eventStream.size() - 1).getVersion() != expectedVersion) {
+            if (!eventStream.isEmpty() && constructor) {
+                throw new RuntimeException("Aggregate with Id " + aggregateId.toString() + " already exits");
+            }
             throw new ConcurrencyFailureException("Concurrency problem with aggregate " + aggregateId);
         }
         int version = expectedVersion;

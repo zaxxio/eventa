@@ -7,6 +7,7 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      transaction-id-prefix: tx-
     consumer:
       group-id: eventa-consumer-group
       auto-offset-reset: earliest
@@ -32,3 +33,5 @@ spring:
       password: password
       port: 27017
       host: localhost
+
+

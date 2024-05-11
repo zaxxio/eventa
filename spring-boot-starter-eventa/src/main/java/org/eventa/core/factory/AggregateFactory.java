@@ -8,6 +8,7 @@ import org.eventa.core.aggregates.AggregateRoot;
 import org.eventa.core.events.BaseEvent;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -15,7 +16,6 @@ public class AggregateFactory {
 
     @Autowired
     private EventStore eventStore;
-
     @Autowired
     private ApplicationContext applicationContext;
 

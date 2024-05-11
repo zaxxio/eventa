@@ -1,6 +1,7 @@
 package org.wsd.app.aggregates;
 
 import lombok.NoArgsConstructor;
+import org.eventa.core.streotype.Snapshot;
 import org.wsd.app.commands.CreateProductCommand;
 import org.wsd.app.commands.UpdateProductCommand;
 import org.wsd.app.events.ProductCreatedEvent;
@@ -10,8 +11,8 @@ import org.eventa.core.streotype.Aggregate;
 import org.eventa.core.streotype.CommandHandler;
 import org.eventa.core.streotype.EventSourcingHandler;
 
-
 @Aggregate
+@Snapshot(interval = 500)
 @NoArgsConstructor
 public class ProductAggregate extends AggregateRoot {
 
