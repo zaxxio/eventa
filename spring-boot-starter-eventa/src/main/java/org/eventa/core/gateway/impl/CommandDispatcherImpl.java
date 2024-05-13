@@ -2,9 +2,7 @@ package org.eventa.core.gateway.impl;
 
 import org.eventa.core.eventstore.EventStore;
 import org.eventa.core.factory.AggregateFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.stereotype.Component;
 import org.eventa.core.aggregates.AggregateRoot;

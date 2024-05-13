@@ -1,21 +1,22 @@
 package org.wsd.app.aggregates;
 
 import lombok.NoArgsConstructor;
-import org.eventa.core.streotype.Snapshot;
+import org.eventa.core.streotype.*;
 import org.wsd.app.commands.CreateProductCommand;
 import org.wsd.app.commands.UpdateProductCommand;
 import org.wsd.app.events.ProductCreatedEvent;
 import org.wsd.app.events.ProductUpdatedEvent;
 import org.eventa.core.aggregates.AggregateRoot;
-import org.eventa.core.streotype.Aggregate;
-import org.eventa.core.streotype.CommandHandler;
-import org.eventa.core.streotype.EventSourcingHandler;
+
+import java.util.UUID;
 
 @Aggregate
-@Snapshot(interval = 500)
 @NoArgsConstructor
+@AggregateSnapshot(interval = 500)
 public class ProductAggregate extends AggregateRoot {
 
+    @RoutingKey
+    private UUID id;
     private String productName;
     private Double quantity;
     private Double price;
@@ -34,7 +35,7 @@ public class ProductAggregate extends AggregateRoot {
 
     @EventSourcingHandler
     public void on(ProductCreatedEvent productCreatedEvent) {
-        super.id = productCreatedEvent.getId();
+        //super.id = productCreatedEvent.getId();
         this.productName = productCreatedEvent.getProductName();
         this.price = productCreatedEvent.getPrice();
         this.quantity = productCreatedEvent.getQuantity();
@@ -54,7 +55,8 @@ public class ProductAggregate extends AggregateRoot {
 
     @EventSourcingHandler
     public void on(ProductUpdatedEvent productUpdatedEvent) {
-        super.id = productUpdatedEvent.getId();
+        //super.id = productUpdatedEvent.getId();
+        System.out.println(id);
         this.productName = productUpdatedEvent.getProductName();
         this.price = productUpdatedEvent.getPrice();
         this.quantity = productUpdatedEvent.getQuantity();

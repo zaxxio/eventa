@@ -3,11 +3,13 @@ package org.eventa.core.aggregates;
 import lombok.Getter;
 import lombok.Setter;
 import org.eventa.core.registry.EventSourcingHandlerRegistry;
-import org.eventa.core.streotype.Snapshot;
+import org.eventa.core.streotype.AggregateSnapshot;
+import org.eventa.core.streotype.RoutingKey;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.eventa.core.events.BaseEvent;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -24,9 +26,9 @@ public abstract class AggregateRoot implements ApplicationContextAware {
     private final int snapshotInterval;
 
     public AggregateRoot() {
-        Snapshot snapshotAnnotation = this.getClass().getAnnotation(Snapshot.class);
-        if (snapshotAnnotation != null) {
-            this.snapshotInterval = snapshotAnnotation.interval();
+        AggregateSnapshot aggregateSnapshotAnnotation = this.getClass().getAnnotation(AggregateSnapshot.class);
+        if (aggregateSnapshotAnnotation != null) {
+            this.snapshotInterval = aggregateSnapshotAnnotation.interval();
         } else {
             this.snapshotInterval = 100;
         }
@@ -55,7 +57,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         apply(baseEvent, true);
     }
 
-    protected void apply(BaseEvent baseEvent, boolean isNewEvent) {
+    private void apply(BaseEvent baseEvent, boolean isNewEvent) {
         handleEvent(baseEvent);
         if (isNewEvent) {
             changes.add(baseEvent);
@@ -72,6 +74,18 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         Class<?> clazz = baseEvent.getClass();
         Method handler = registry.getHandler(clazz);
         if (handler != null && handler.getDeclaringClass().isAssignableFrom(this.getClass())) {
+
+            for (Field field : this.getClass().getDeclaredFields()) {
+                if (field.isAnnotationPresent(RoutingKey.class)) {
+                    field.setAccessible(true);
+                    try {
+                        field.set(this, baseEvent.getId());
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
             try {
                 handler.invoke(this, baseEvent);
             } catch (Exception e) {

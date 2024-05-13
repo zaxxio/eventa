@@ -25,7 +25,7 @@ public class MongoEventStore implements EventStore {
         List<EventModel> eventStream = eventStoreRepository.findByAggregateIdentifier(aggregateId.toString());
         if (!eventStream.isEmpty() && expectedVersion != -1 && eventStream.get(eventStream.size() - 1).getVersion() != expectedVersion) {
             if (!eventStream.isEmpty() && constructor) {
-                throw new RuntimeException("Aggregate with Id " + aggregateId.toString() + " already exits");
+                throw new RuntimeException("Aggregate with Id " + aggregateId + " already exits");
             }
             throw new ConcurrencyFailureException("Concurrency problem with aggregate " + aggregateId);
         }

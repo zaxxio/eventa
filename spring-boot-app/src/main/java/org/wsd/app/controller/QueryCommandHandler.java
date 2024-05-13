@@ -17,12 +17,12 @@ import java.util.UUID;
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class QueryCommandHandler {
+
     private final QueryDispatcher queryDispatcher;
 
     @GetMapping
     public ResponseEntity<?> getExample(UUID id) throws Exception {
-        FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery
-                .builder()
+        FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery.builder()
                 .productId(id)
                 .build();
         List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));
