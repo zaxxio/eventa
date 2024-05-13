@@ -20,26 +20,6 @@ This library provides a robust infrastructure for implementing the Command Query
 3. **Apply Event Sourcing:** Utilize event sourcing to persist domain events and rebuild aggregate state from event streams.
 4. **Configure Infrastructure:** Set up infrastructure components such as command buses, event stores, and event processors to manage command and event handling.
 5. **Integrate with Application:** Integrate the library with your application to leverage its CQRS and Event-Sourcing capabilities seamlessly.
-
-
-
-# Repository
-```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-```
-# Dependency
-```xml
-<dependency>
-    <groupId>com.github.zaxxio</groupId>
-    <artifactId>spring-boot-starter-eventa</artifactId>
-    <version>2.0.0</version>
-</dependency>
-```
 ## Sample Aggregate
 
 ```java
