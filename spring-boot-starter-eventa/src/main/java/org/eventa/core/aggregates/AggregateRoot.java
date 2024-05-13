@@ -79,6 +79,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
                 if (field.isAnnotationPresent(RoutingKey.class)) {
                     field.setAccessible(true);
                     try {
+                        this.id = baseEvent.getId();
                         field.set(this, baseEvent.getId());
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);

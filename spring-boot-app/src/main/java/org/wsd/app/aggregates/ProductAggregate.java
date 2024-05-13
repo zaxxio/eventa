@@ -56,7 +56,7 @@ public class ProductAggregate extends AggregateRoot {
     @EventSourcingHandler
     public void on(ProductUpdatedEvent productUpdatedEvent) {
         //super.id = productUpdatedEvent.getId();
-        System.out.println(id);
+        // System.out.println(id);
         this.productName = productUpdatedEvent.getProductName();
         this.price = productUpdatedEvent.getPrice();
         this.quantity = productUpdatedEvent.getQuantity();
