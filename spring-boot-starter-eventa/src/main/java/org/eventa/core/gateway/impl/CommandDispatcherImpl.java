@@ -1,7 +1,9 @@
 package org.eventa.core.gateway.impl;
 
+import org.eventa.core.aggregates.Snapshot;
 import org.eventa.core.eventstore.EventStore;
 import org.eventa.core.factory.AggregateFactory;
+import org.eventa.core.repository.SnapshotRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.stereotype.Component;
@@ -24,14 +26,18 @@ public class CommandDispatcherImpl implements CommandDispatcher {
     private final CommandHandlerRegistry commandHandlerRegistry;
     private final AggregateFactory aggregateFactory;
     private final EventStore eventStore;
-    private ApplicationContext applicationContext;
+    private final SnapshotRepository snapshotRepository;
 
-    public CommandDispatcherImpl(List<CommandInterceptor> interceptors, CommandHandlerRegistry commandHandlerRegistry, AggregateFactory aggregateFactory, EventStore eventStore, ApplicationContext applicationContext) {
+    public CommandDispatcherImpl(List<CommandInterceptor> interceptors,
+                                 CommandHandlerRegistry commandHandlerRegistry,
+                                 AggregateFactory aggregateFactory,
+                                 EventStore eventStore,
+                                 SnapshotRepository snapshotRepository) {
         this.interceptors = interceptors;
         this.commandHandlerRegistry = commandHandlerRegistry;
         this.aggregateFactory = aggregateFactory;
         this.eventStore = eventStore;
-        this.applicationContext = applicationContext;
+        this.snapshotRepository = snapshotRepository;
     }
 
     @Override
@@ -47,6 +53,10 @@ public class CommandDispatcherImpl implements CommandDispatcher {
             try {
                 eventStore.saveEvents(aggregateId, aggregateClass.getSimpleName(), uncommittedChanges, aggregate.getVersion(), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
                 aggregate.markChangesAsCommitted();
+                /*if (aggregate.getVersion() % aggregate.getSnapshotInterval() == 0) {
+                    final Snapshot snapshot = aggregate.takeSnapshot();
+                    this.snapshotRepository.save(snapshot);
+                }*/
             } catch (ConcurrencyFailureException e) {
                 // Log and handle the concurrency issue appropriately
                 throw e;

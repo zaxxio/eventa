@@ -5,6 +5,9 @@ import org.eventa.core.events.BaseEvent;
 import org.eventa.core.producer.EventProducer;
 import org.eventa.core.repository.EventStoreRepository;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -19,6 +22,7 @@ public class MongoEventStore implements EventStore {
 
     private final EventStoreRepository eventStoreRepository;
     private final EventProducer eventProducer;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public void saveEvents(UUID aggregateId, String aggregateType, Iterable<BaseEvent> events, int expectedVersion, boolean constructor) throws Exception {
@@ -55,5 +59,12 @@ public class MongoEventStore implements EventStore {
             throw new RuntimeException("Aggregate " + aggregateId + " not found");
         }
         return eventStream.stream().map(EventModel::getBaseEvent).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BaseEvent> findEventsAfterVersion(UUID aggregateId, int version) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("aggregateId").is(aggregateId).and("version").gte(version));
+        return mongoTemplate.find(query, BaseEvent.class);
     }
 }

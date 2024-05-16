@@ -2,7 +2,9 @@ package org.eventa.core.aggregates;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.eventa.core.registry.EventSourcingHandlerRegistry;
+import org.eventa.core.repository.SnapshotRepository;
 import org.eventa.core.streotype.AggregateSnapshot;
 import org.eventa.core.streotype.RoutingKey;
 import org.springframework.context.ApplicationContext;
@@ -14,6 +16,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 
+@Log4j2
 public abstract class AggregateRoot implements ApplicationContextAware {
 
     @Getter
@@ -23,6 +26,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
     protected int version = -1;
     private ApplicationContext applicationContext;
     private final List<BaseEvent> changes = new ArrayList<>();
+    @Getter
     private final int snapshotInterval;
 
     public AggregateRoot() {
@@ -61,15 +65,37 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         handleEvent(baseEvent);
         if (isNewEvent) {
             changes.add(baseEvent);
-            if (version % snapshotInterval == 0) {
-                takeSnapshot();
-            }
         }
         this.version++;
     }
 
-    private Snapshot takeSnapshot() {
-        return createSnapshot();
+    public Snapshot takeSnapshot() {
+        Snapshot snapshot = createSnapshot();
+        log.info("Took Snapshot of the Aggregate.");
+        return snapshot;
+    }
+
+    public void restoreSnapshot(Snapshot snapshot) {
+        if (snapshot != null) {
+            setAggregateState(snapshot.getState());
+            this.id = snapshot.getId();
+            this.version = snapshot.getVersion();
+        }
+    }
+
+    private void setAggregateState(Object state) {
+        try {
+            if (state instanceof AggregateState aggregateState) {
+                for (Field field : this.getClass().getDeclaredFields()) {
+                    field.setAccessible(true);
+                    if (aggregateState.hasField(field.getName())) {
+                        field.set(this, aggregateState.getField(field.getName()));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set aggregate state", e);
+        }
     }
 
     private Snapshot createSnapshot() {

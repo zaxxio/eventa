@@ -28,6 +28,7 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+
         final Map<String, Object> aggregates = this.applicationContext.getBeansWithAnnotation(Aggregate.class);
 
         final Map<String, Object> projectionGroups = this.applicationContext.getBeansWithAnnotation(ProjectionGroup.class);

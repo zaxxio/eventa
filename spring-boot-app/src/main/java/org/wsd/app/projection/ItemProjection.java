@@ -16,5 +16,4 @@ public class ItemProjection {
     public List<Integer> handle(ItemQuery itemQuery) {
         return List.of(1, 2, 3, 4, 5);
     }
-
 }

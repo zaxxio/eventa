@@ -35,3 +35,12 @@ spring:
       host: localhost
 
 
+eventa:
+  kafka:
+    bootstrap-servers: localhost:9092
+  mongodb:
+    username: username
+    password: password
+    port: 27017
+    host: localhost
+

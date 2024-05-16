@@ -28,6 +28,7 @@ public class ProductProjection {
 
     @QueryHandler
     public List<Integer> handle(FindByProductIdQuery findByProductIdQuery) {
+        System.out.println(findByProductIdQuery.getProductId());
         return List.of(1, 2, 3, 4, 5);
     }
 

@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Aggregate
 @NoArgsConstructor
-@AggregateSnapshot(interval = 500)
+@AggregateSnapshot(interval = 2)
 public class ProductAggregate extends AggregateRoot {
 
     @RoutingKey
