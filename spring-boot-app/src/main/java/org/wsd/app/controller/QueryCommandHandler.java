@@ -35,4 +35,5 @@ public class QueryCommandHandler {
         List<Integer> result = queryDispatcher.dispatch(itemQuery, ResponseType.multipleInstancesOf(Integer.class));
         return ResponseEntity.ok(result);
     }
+
 }

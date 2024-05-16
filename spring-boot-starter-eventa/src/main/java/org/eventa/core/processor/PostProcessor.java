@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -58,6 +59,17 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
 
         for (Map.Entry<String, Object> entry : aggregates.entrySet()) {
             Class<?> aClass = entry.getValue().getClass();
+
+            boolean isRoutingKeyExists = false;
+            for (Field field : aClass.getDeclaredFields()) {
+                if (field.isAnnotationPresent(RoutingKey.class)) {
+                    isRoutingKeyExists = true;
+                }
+            }
+
+            if (!isRoutingKeyExists) {
+                throw new RuntimeException("Aggregate must have routing key with @RoutingKey annotation.");
+            }
 
             Arrays.stream(aClass.getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(CommandHandler.class))

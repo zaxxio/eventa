@@ -62,10 +62,33 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         if (isNewEvent) {
             changes.add(baseEvent);
             if (version % snapshotInterval == 0) {
-                System.out.println("Snap");
+                takeSnapshot();
             }
         }
         this.version++;
+    }
+
+    private Snapshot takeSnapshot() {
+        return createSnapshot();
+    }
+
+    private Snapshot createSnapshot() {
+        Object state = getAggregateState();
+        return new Snapshot(id, version, state);
+    }
+
+    private Object getAggregateState() {
+        try {
+            Field[] fields = this.getClass().getDeclaredFields();
+            AggregateState state = new AggregateState();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                state.addField(field.getName(), field.get(this));
+            }
+            return state;
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to get aggregate state", ex);
+        }
     }
 
 

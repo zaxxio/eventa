@@ -3,8 +3,10 @@ package org.wsd.app.aggregates;
 import lombok.NoArgsConstructor;
 import org.eventa.core.streotype.*;
 import org.wsd.app.commands.CreateProductCommand;
+import org.wsd.app.commands.DeleteProductCommand;
 import org.wsd.app.commands.UpdateProductCommand;
 import org.wsd.app.events.ProductCreatedEvent;
+import org.wsd.app.events.ProductDeletedEvent;
 import org.wsd.app.events.ProductUpdatedEvent;
 import org.eventa.core.aggregates.AggregateRoot;
 
@@ -35,7 +37,6 @@ public class ProductAggregate extends AggregateRoot {
 
     @EventSourcingHandler
     public void on(ProductCreatedEvent productCreatedEvent) {
-        //super.id = productCreatedEvent.getId();
         this.productName = productCreatedEvent.getProductName();
         this.price = productCreatedEvent.getPrice();
         this.quantity = productCreatedEvent.getQuantity();
@@ -55,10 +56,28 @@ public class ProductAggregate extends AggregateRoot {
 
     @EventSourcingHandler
     public void on(ProductUpdatedEvent productUpdatedEvent) {
-        //super.id = productUpdatedEvent.getId();
-        // System.out.println(id);
         this.productName = productUpdatedEvent.getProductName();
         this.price = productUpdatedEvent.getPrice();
         this.quantity = productUpdatedEvent.getQuantity();
     }
+
+    @CommandHandler
+    public void handle(DeleteProductCommand deleteProductCommand) {
+        apply(
+                ProductDeletedEvent.builder()
+                        .id(deleteProductCommand.getId())
+                        .productName(deleteProductCommand.getProductName())
+                        .price(deleteProductCommand.getPrice())
+                        .quantity(deleteProductCommand.getQuantity())
+                        .build()
+        );
+    }
+
+    @EventSourcingHandler
+    public void on(ProductDeletedEvent productDeletedEvent) {
+        this.productName = productDeletedEvent.getProductName();
+        this.price = productDeletedEvent.getPrice();
+        this.quantity = productDeletedEvent.getQuantity();
+    }
+
 }
