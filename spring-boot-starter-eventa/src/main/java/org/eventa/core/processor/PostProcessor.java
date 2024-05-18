@@ -95,5 +95,19 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
                         }
                     });
         }
+
+        log.info("Eventa AutoConfiguration Loaded.");
+
+        String logo = """
+
+                    ______                 __      \s
+                   / ____/   _____  ____  / /_____ _
+                  / __/ | | / / _ \\/ __ \\/ __/ __ `/
+                 / /___ | |/ /  __/ / / / /_/ /_/ /\s
+                /_____/ |___/\\___/_/ /_/\\__/\\__,_/ \s
+                                                   \s
+
+                """;
+        System.out.println(logo);
     }
 }

@@ -19,11 +19,13 @@ public class ProductProjection {
     @EventHandler
     public void on(ProductCreatedEvent productCreatedEvent) {
         System.out.println("Product " + productCreatedEvent);
+        System.out.println("Thread Id : "+Thread.currentThread().getId());
     }
 
     @EventHandler
     public void on(ProductUpdatedEvent productUpdatedEvent) {
         System.out.println("Product " + productUpdatedEvent);
+        System.out.println("Thread Id : "+Thread.currentThread().getId());
     }
 
     @QueryHandler

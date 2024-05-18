@@ -100,7 +100,9 @@ public abstract class AggregateRoot implements ApplicationContextAware {
 
     private Snapshot createSnapshot() {
         Object state = getAggregateState();
-        return new Snapshot(id, version, state);
+        Snapshot snapshot = new Snapshot(id, version, state);
+        System.out.println("Version : " + version);
+        return snapshot;
     }
 
     private Object getAggregateState() {

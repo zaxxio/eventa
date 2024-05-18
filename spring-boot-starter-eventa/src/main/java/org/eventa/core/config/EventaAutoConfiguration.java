@@ -13,6 +13,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Log4j2
 @AutoConfiguration
@@ -24,6 +25,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @ComponentScan(basePackages = "org.eventa.core")
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
+@EnableAsync
 public class EventaAutoConfiguration {
 
 

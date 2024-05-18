@@ -25,14 +25,14 @@ public class QueryCommandHandler {
         FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery.builder()
                 .productId(id)
                 .build();
-        List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));
+        final List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/items")
     public ResponseEntity<?> getItem(UUID id) throws Exception {
         ItemQuery itemQuery = ItemQuery.builder().build();
-        List<Integer> result = queryDispatcher.dispatch(itemQuery, ResponseType.multipleInstancesOf(Integer.class));
+        final List<Integer> result = queryDispatcher.dispatch(itemQuery, ResponseType.multipleInstancesOf(Integer.class));
         return ResponseEntity.ok(result);
     }
 

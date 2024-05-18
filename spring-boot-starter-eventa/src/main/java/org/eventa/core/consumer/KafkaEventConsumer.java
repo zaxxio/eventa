@@ -14,10 +14,10 @@ public class KafkaEventConsumer implements EventConsumer {
     private final EventDispatcher eventDispatcher;
 
     @Override
-    @KafkaListener(topicPattern = ".*Event$")
-    public void consume(BaseEvent baseEvent, Acknowledgment acknowledgment) {
-        eventDispatcher.dispatch(baseEvent);
-        acknowledgment.acknowledge();
+    @KafkaListener(topicPattern = ".*Event$", concurrency = "2")
+    public void consume(BaseEvent baseEvent, Acknowledgment ack) {
+        this.eventDispatcher.dispatch(baseEvent);
+        ack.acknowledge();
     }
 
 
