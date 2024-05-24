@@ -38,9 +38,12 @@ spring:
 eventa:
   kafka:
     bootstrap-servers: localhost:9092
+    trusted-packages:
   mongodb:
     username: username
     password: password
     port: 27017
     host: localhost
+    database: events_store
+    authentication-database: admin
 

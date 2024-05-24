@@ -1,6 +1,7 @@
 package org.wsd.app.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.eventa.core.tag.ApiVersion;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,6 +13,7 @@ import org.wsd.app.model.ProductDTO;
 import org.eventa.core.gateway.CommandDispatcher;
 
 @RestController
+@ApiVersion(value = "v1")
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductCommandController {

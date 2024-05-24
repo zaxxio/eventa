@@ -9,4 +9,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaProperties {
     private String bootstrapServers;
+    private String[] trustedPackages;
 }

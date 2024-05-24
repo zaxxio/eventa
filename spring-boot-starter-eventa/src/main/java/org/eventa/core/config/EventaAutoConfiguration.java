@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @Log4j2
 @AutoConfiguration
@@ -35,6 +36,11 @@ public class EventaAutoConfiguration {
     public void postConstruct() {
 
     }
+
+//    @Bean
+//    public RequestMappingHandlerMapping customRequestMappingHandlerMapping() {
+//        return new ApiVersionRequestMappingHandlerMapping();
+//    }
 
     @Bean
     public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {

@@ -22,7 +22,7 @@ public class QueryCommandHandler {
 
     @GetMapping
     public ResponseEntity<?> getExample(UUID id) throws Exception {
-        FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery.builder()
+        final FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery.builder()
                 .productId(id)
                 .build();
         final List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));

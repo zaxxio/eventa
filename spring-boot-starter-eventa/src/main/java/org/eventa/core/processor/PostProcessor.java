@@ -106,7 +106,7 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
                  / /___ | |/ /  __/ / / / /_/ /_/ /\s
                 /_____/ |___/\\___/_/ /_/\\__/\\__,_/ \s
                                                    \s
-
+                Eventa version 1.0.0
                 """;
         System.out.println(logo);
     }
