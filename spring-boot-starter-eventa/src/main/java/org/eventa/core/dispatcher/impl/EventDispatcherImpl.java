@@ -1,10 +1,10 @@
-package org.eventa.core.gateway.impl;
+package org.eventa.core.dispatcher.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.eventa.core.events.BaseEvent;
-import org.eventa.core.gateway.EventDispatcher;
+import org.eventa.core.dispatcher.EventDispatcher;
 import org.eventa.core.registry.EventHandlerRegistry;
 
 import java.lang.reflect.InvocationTargetException;

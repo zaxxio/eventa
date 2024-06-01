@@ -5,7 +5,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.eventa.core.events.BaseEvent;
-import org.eventa.core.gateway.EventDispatcher;
+import org.eventa.core.dispatcher.EventDispatcher;
 
 @Service
 @RequiredArgsConstructor

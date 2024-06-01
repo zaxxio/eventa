@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wsd.app.query.FindByProductIdQuery;
 import org.wsd.app.query.ItemQuery;
-import org.eventa.core.gateway.QueryDispatcher;
+import org.eventa.core.dispatcher.QueryDispatcher;
 import org.eventa.core.query.ResponseType;
 
 import java.util.List;

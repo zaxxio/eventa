@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.wsd.app.commands.CreateProductCommand;
 import org.wsd.app.commands.UpdateProductCommand;
 import org.wsd.app.model.ProductDTO;
-import org.eventa.core.gateway.CommandDispatcher;
+import org.eventa.core.dispatcher.CommandDispatcher;
 
 @RestController
 @ApiVersion(value = "v1")
