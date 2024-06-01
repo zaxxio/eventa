@@ -13,8 +13,13 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import java.util.concurrent.Executor;
 
 @Log4j2
 @AutoConfiguration
@@ -43,7 +48,7 @@ public class EventaAutoConfiguration {
 //    }
 
     @Bean
-    public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
+    public MongoTransactionManager eventaMongoDBtransactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
 

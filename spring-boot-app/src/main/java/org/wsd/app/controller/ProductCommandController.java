@@ -12,6 +12,8 @@ import org.wsd.app.commands.UpdateProductCommand;
 import org.wsd.app.model.ProductDTO;
 import org.eventa.core.dispatcher.CommandDispatcher;
 
+import java.util.UUID;
+
 @RestController
 @ApiVersion(value = "v1")
 @RequestMapping("/api/products")
@@ -24,7 +26,7 @@ public class ProductCommandController {
     public ResponseEntity<?> createProduct(ProductDTO productDTO) throws Exception {
 
         final CreateProductCommand createProductCommand = CreateProductCommand.builder()
-                .id(productDTO.getId())
+                .id(UUID.randomUUID())
                 .productName(productDTO.getProductName())
                 .quantity(productDTO.getQuantity())
                 .price(productDTO.getPrice())

@@ -14,7 +14,7 @@ public class CommandInterceptorRegisterer {
         this.commandInterceptors = new ArrayList<>();
     }
 
-    public synchronized void register(CommandInterceptor commandInterceptor) {
+    public void register(CommandInterceptor commandInterceptor) {
         this.commandInterceptors.add(commandInterceptor);
     }
 

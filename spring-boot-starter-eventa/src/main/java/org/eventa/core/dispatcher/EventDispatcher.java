@@ -1,7 +1,10 @@
 package org.eventa.core.dispatcher;
 
 import org.eventa.core.events.BaseEvent;
+import org.springframework.scheduling.annotation.Async;
+
+import java.util.concurrent.CompletableFuture;
 
 public interface EventDispatcher {
-    void dispatch(BaseEvent baseEvent);
+    CompletableFuture<Void> dispatch(BaseEvent baseEvent);
 }
