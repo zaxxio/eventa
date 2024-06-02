@@ -4,6 +4,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.eventa.core.repository.EventStoreRepository;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
@@ -32,24 +35,25 @@ import java.util.concurrent.Executor;
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
 @EnableAsync
-public class EventaAutoConfiguration {
+public class EventaAutoConfiguration implements BeanFactoryAware {
 
 
     private final EventaProperties eventaProperties;
+    private BeanFactory beanFactory;
 
     @PostConstruct
     public void postConstruct() {
 
     }
 
-//    @Bean
-//    public RequestMappingHandlerMapping customRequestMappingHandlerMapping() {
-//        return new ApiVersionRequestMappingHandlerMapping();
-//    }
-
     @Bean
     public MongoTransactionManager eventaMongoDBtransactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
     }
 
 
