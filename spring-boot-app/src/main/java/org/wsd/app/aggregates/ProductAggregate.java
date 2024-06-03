@@ -39,7 +39,7 @@ public class ProductAggregate extends AggregateRoot {
     public void on(ProductCreatedEvent productCreatedEvent) {
         this.productName = productCreatedEvent.getProductName();
         this.price = productCreatedEvent.getPrice();
-        this.quantity = productCreatedEvent.getQuantity();
+        this.quantity += 1;
     }
 
     @CommandHandler

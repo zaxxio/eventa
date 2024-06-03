@@ -167,7 +167,42 @@ public class QueryCommandHandler {
     }
 }
 ```
+## Interceptor 
+```java
+@Component
+public class ProductCommandInterceptor implements CommandInterceptor {
 
+    @Override
+    public void preHandle(BaseCommand command) {
+        if (command instanceof CreateProductCommand) {
+            // change or logical processing pre-processing
+        }
+    }
+
+    @Override
+    public void postHandle(BaseCommand command) {
+        if (command instanceof  CreateProductCommand) {
+            // change or logical processing post-processing
+        }
+    }
+}
+
+@Configuration
+public class EventaConfig {
+
+    @Autowired
+    private ProductCommandInterceptor productCommandInterceptor;
+
+    @Bean
+    public CommandInterceptorRegisterer commandInterceptorRegisterer() {
+        CommandInterceptorRegisterer commandInterceptorRegisterer = new CommandInterceptorRegisterer();
+        commandInterceptorRegisterer.register(productCommandInterceptor);
+        return commandInterceptorRegisterer;
+    }
+
+}
+
+```
 ## Infrastructure Dependency
 ```yaml
 spring:
