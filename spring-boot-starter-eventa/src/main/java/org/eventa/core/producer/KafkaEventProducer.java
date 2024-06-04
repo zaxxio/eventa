@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Log4j2
 @Service
@@ -29,6 +30,7 @@ public class KafkaEventProducer implements EventProducer {
                 .setHeader(KafkaHeaders.KEY, UUID.randomUUID())
                 .setHeader("schema.version", "v1")
                 .setHeader(KafkaHeaders.TOPIC, "baseEvent")
+                .setHeader(KafkaHeaders.PARTITION, ThreadLocalRandom.current().nextInt(0, 2))
                 .setHeader(KafkaHeaders.TIMESTAMP, System.currentTimeMillis())
                 .build();
         CompletableFuture<? extends SendResult<UUID, ?>> future = kafkaTemplate.send(message);
