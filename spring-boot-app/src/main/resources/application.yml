@@ -1,7 +1,6 @@
 spring:
   application:
     name: spring-boot-app
-  # Kafka Bootstrap Server's
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -9,7 +8,10 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       transaction-id-prefix: tx-
       properties:
-        enable-idempotence: true # Handle's Duplicates in Kafka
+        enable-idempotence: true
+        acks: all
+        retries: 5
+        max-in-flight-requests-per-connection: 5
     consumer:
       group-id: eventa-consumer-group
       auto-offset-reset: earliest
@@ -21,9 +23,13 @@ spring:
             trusted:
               packages: '*'
       enable-auto-commit: false
+      max-poll-records: 500
+      heartbeat-interval: 5000
+      fetch-max-wait: 5000
     listener:
       missing-topics-fatal: false
-      ack-mode: manual
+      ack-mode: manual                    # Manual acknowledgment mode
+
   # Mongo DB
   data:
     mongodb:
