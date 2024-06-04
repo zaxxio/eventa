@@ -24,7 +24,7 @@ public class ProductProjection {
 
     private final ProductRepository productRepository;
 
-    @EventHandler(value = ProductCreatedEvent.class)
+    @EventHandler(ProductCreatedEvent.class)
     public void on(ProductCreatedEvent productCreatedEvent) {
         System.out.println("Product " + productCreatedEvent);
         Product product = new Product();
@@ -39,7 +39,7 @@ public class ProductProjection {
         System.out.println("Thread Id : " + Thread.currentThread().getId()); // apply any logic here
     }
 
-    @EventHandler(value = ProductUpdatedEvent.class)
+    @EventHandler(ProductUpdatedEvent.class)
     public void on(ProductUpdatedEvent productUpdatedEvent) {
         log.info("Product {}", productUpdatedEvent);
 

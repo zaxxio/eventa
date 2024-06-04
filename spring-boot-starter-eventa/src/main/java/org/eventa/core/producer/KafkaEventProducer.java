@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class KafkaEventProducer implements EventProducer {
     private final KafkaTemplate<UUID, Object> kafkaTemplate;
+
     @Override
     @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = Exception.class)
     public void produce(String topic, BaseEvent baseEvent) {
@@ -27,13 +28,13 @@ public class KafkaEventProducer implements EventProducer {
                 .withPayload(baseEvent)
                 .setHeader(KafkaHeaders.KEY, UUID.randomUUID())
                 .setHeader("schema.version", "v1")
-                .setHeader(KafkaHeaders.TOPIC, topic)
+                .setHeader(KafkaHeaders.TOPIC, "baseEvent")
                 .setHeader(KafkaHeaders.TIMESTAMP, System.currentTimeMillis())
                 .build();
         CompletableFuture<? extends SendResult<UUID, ?>> future = kafkaTemplate.send(message);
         future.thenAccept(uuidSendResult -> {
             try {
-                log.info("Produced : " + future.get().getProducerRecord().value());
+                log.info("Produced : {}", future.get().getProducerRecord().value());
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

@@ -18,7 +18,7 @@ public class KafkaEventConsumer implements EventConsumer {
     private final EventDispatcher eventDispatcher;
 
     @Override
-    @KafkaListener(topicPattern = ".*Event$", concurrency = "2", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topicPattern = "baseEvent", concurrency = "2", containerFactory = "kafkaListenerContainerFactory")
     public void consume(BaseEvent baseEvent, Acknowledgment ack) {
         log.info("Received event: {}", baseEvent);
         log.info("Thread Id : {}" , Thread.currentThread().getId());
