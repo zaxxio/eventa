@@ -10,7 +10,6 @@ import org.eventa.core.aggregates.AggregateRoot;
 import org.eventa.core.commands.BaseCommand;
 import org.eventa.core.events.BaseEvent;
 import org.eventa.core.dispatcher.CommandDispatcher;
-import org.eventa.core.interceptor.CommandInterceptor;
 import org.eventa.core.registry.CommandHandlerRegistry;
 import org.eventa.core.streotype.CommandHandler;
 

@@ -16,12 +16,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import java.util.concurrent.Executor;
 
 @Log4j2
 @AutoConfiguration
