@@ -3,6 +3,7 @@ package org.eventa.core.producer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.eventa.core.events.BaseEvent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
@@ -20,6 +21,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @RequiredArgsConstructor
 public class KafkaEventProducer implements EventProducer {
+    @Value("${eventa.kafka.event-store-name}")
+    private String eventStoreName;
     private final KafkaTemplate<UUID, Object> kafkaTemplate;
 
     @Override
@@ -29,7 +32,7 @@ public class KafkaEventProducer implements EventProducer {
                 .withPayload(baseEvent)
                 .setHeader(KafkaHeaders.KEY, UUID.randomUUID())
                 .setHeader("schema.version", "v1")
-                .setHeader(KafkaHeaders.TOPIC, "baseEvent")
+                .setHeader(KafkaHeaders.TOPIC, eventStoreName)
                 .setHeader(KafkaHeaders.PARTITION, ThreadLocalRandom.current().nextInt(0, 2))
                 .setHeader(KafkaHeaders.TIMESTAMP, System.currentTimeMillis())
                 .build();
