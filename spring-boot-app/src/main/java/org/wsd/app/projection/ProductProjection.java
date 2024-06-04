@@ -2,7 +2,6 @@ package org.wsd.app.projection;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.stereotype.Service;
 import org.wsd.app.domain.Product;
 import org.wsd.app.events.ProductCreatedEvent;
@@ -25,7 +24,7 @@ public class ProductProjection {
 
     private final ProductRepository productRepository;
 
-    @EventHandler
+    @EventHandler(value = ProductCreatedEvent.class)
     public void on(ProductCreatedEvent productCreatedEvent) {
         System.out.println("Product " + productCreatedEvent);
         Product product = new Product();
@@ -40,7 +39,7 @@ public class ProductProjection {
         System.out.println("Thread Id : " + Thread.currentThread().getId()); // apply any logic here
     }
 
-    @EventHandler
+    @EventHandler(value = ProductUpdatedEvent.class)
     public void on(ProductUpdatedEvent productUpdatedEvent) {
         log.info("Product {}", productUpdatedEvent);
 
