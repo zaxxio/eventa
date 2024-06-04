@@ -8,6 +8,8 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       transaction-id-prefix: tx-
+      properties:
+        enable-idempotence: true # Handle's Duplicates in Kafka
     consumer:
       group-id: eventa-consumer-group
       auto-offset-reset: earliest
@@ -18,6 +20,7 @@ spring:
           json:
             trusted:
               packages: '*'
+      enable-auto-commit: false
     listener:
       missing-topics-fatal: false
       ack-mode: manual

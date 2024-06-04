@@ -1,17 +1,21 @@
 package org.wsd.app.config;
 
 import org.eventa.core.interceptor.CommandInterceptorRegisterer;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.wsd.app.interceptor.ProductCommandInterceptor;
+import org.wsd.app.repository.ProductRepository;
 
 @Configuration
+@EnableMongoRepositories(basePackageClasses = {ProductRepository.class})
 public class EventaConfig {
 
-    @Autowired
-    private ProductCommandInterceptor productCommandInterceptor;
+    private final ProductCommandInterceptor productCommandInterceptor;
+
+    public EventaConfig(ProductCommandInterceptor productCommandInterceptor) {
+        this.productCommandInterceptor = productCommandInterceptor;
+    }
 
     @Bean
     public CommandInterceptorRegisterer commandInterceptorRegisterer() {

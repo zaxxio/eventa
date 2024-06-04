@@ -20,8 +20,8 @@ public class ProductAggregate extends AggregateRoot {
     @RoutingKey
     private UUID id;
     private String productName;
-    private Double quantity;
-    private Double price;
+    private double quantity;
+    private double price;
 
     @CommandHandler(constructor = true)
     public void handle(CreateProductCommand createProductCommand) {

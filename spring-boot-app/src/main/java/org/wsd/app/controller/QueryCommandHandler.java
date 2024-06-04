@@ -1,10 +1,11 @@
 package org.wsd.app.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.wsd.app.domain.Product;
+import org.wsd.app.query.FindAllProducts;
 import org.wsd.app.query.FindByProductIdQuery;
 import org.wsd.app.query.ItemQuery;
 import org.eventa.core.dispatcher.QueryDispatcher;
@@ -20,20 +21,22 @@ public class QueryCommandHandler {
 
     private final QueryDispatcher queryDispatcher;
 
-    @GetMapping
-    public ResponseEntity<?> getExample(UUID id) throws Exception {
+    @GetMapping("/{productId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getProductById(@PathVariable("productId") UUID productId) {
         final FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery.builder()
-                .productId(id)
+                .productId(productId)
                 .build();
-        final List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));
+        final Product result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.instanceOf(Product.class));
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/items")
-    public ResponseEntity<?> getItem(UUID id) throws Exception {
-        ItemQuery itemQuery = ItemQuery.builder().build();
-        final List<Integer> result = queryDispatcher.dispatch(itemQuery, ResponseType.multipleInstancesOf(Integer.class));
-        return ResponseEntity.ok(result);
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getProducts() {
+        final FindAllProducts findAllProducts = FindAllProducts.builder().build();
+        final List<Product> products = queryDispatcher.dispatch(findAllProducts, ResponseType.multipleInstancesOf(Product.class));
+        return ResponseEntity.ok(products);
     }
 
 }
