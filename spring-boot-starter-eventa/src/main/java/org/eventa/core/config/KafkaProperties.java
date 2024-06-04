@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaProperties {
+    private String eventStoreName;
     private String bootstrapServers;
     private String[] trustedPackages;
 }
