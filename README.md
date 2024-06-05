@@ -25,15 +25,17 @@ This library provides a robust infrastructure for implementing the Command Query
 ```java
 @Aggregate
 @NoArgsConstructor
-public class ProductAggregate extends AggregateRoot { // AggregateRoot Extends
+@AggregateSnapshot(interval = 2)
+public class ProductAggregate extends AggregateRoot {
+
     @RoutingKey
     private UUID id;
     private String productName;
-    private Double quantity;
-    private Double price;
+    private double quantity;
+    private double price;
 
-    @CommandHandler(constructor = true) // to create first aggregate
-    public void handle(CreateProductCommand createProductCommand) { // You command to create
+    @CommandHandler(constructor = true)
+    public void handle(CreateProductCommand createProductCommand) {
         apply(
                 ProductCreatedEvent.builder()
                         .id(createProductCommand.getId())
@@ -45,15 +47,14 @@ public class ProductAggregate extends AggregateRoot { // AggregateRoot Extends
     }
 
     @EventSourcingHandler
-    public void on(ProductCreatedEvent productCreatedEvent) { // apply event-sourcing to build the current state
-        super.id = productCreatedEvent.getId();
+    public void on(ProductCreatedEvent productCreatedEvent) {
         this.productName = productCreatedEvent.getProductName();
         this.price = productCreatedEvent.getPrice();
-        this.quantity = productCreatedEvent.getQuantity();
+        this.quantity += 1;
     }
 
     @CommandHandler
-    public void handle(UpdateProductCommand updateProductCommand) { // modifying on existing aggregate
+    public void handle(UpdateProductCommand updateProductCommand) {
         apply(
                 ProductUpdatedEvent.builder()
                         .id(updateProductCommand.getId())
@@ -65,13 +66,33 @@ public class ProductAggregate extends AggregateRoot { // AggregateRoot Extends
     }
 
     @EventSourcingHandler
-    public void on(ProductUpdatedEvent productUpdatedEvent) { // apply event-sourcing to build the current state
-        super.id = productUpdatedEvent.getId();
+    public void on(ProductUpdatedEvent productUpdatedEvent) {
         this.productName = productUpdatedEvent.getProductName();
         this.price = productUpdatedEvent.getPrice();
         this.quantity = productUpdatedEvent.getQuantity();
     }
+
+    @CommandHandler
+    public void handle(DeleteProductCommand deleteProductCommand) {
+        apply(
+                ProductDeletedEvent.builder()
+                        .id(deleteProductCommand.getId())
+                        .productName(deleteProductCommand.getProductName())
+                        .price(deleteProductCommand.getPrice())
+                        .quantity(deleteProductCommand.getQuantity())
+                        .build()
+        );
+    }
+
+    @EventSourcingHandler
+    public void on(ProductDeletedEvent productDeletedEvent) {
+        this.productName = productDeletedEvent.getProductName();
+        this.price = productDeletedEvent.getPrice();
+        this.quantity = productDeletedEvent.getQuantity();
+    }
+
 }
+
 ```
 ## Sample Projection Group
 ```java
@@ -132,7 +153,9 @@ public class ProductProjection {
 ```
 ##  Command Dispatcher
 ```java
+
 @RestController
+@ApiVersion(value = "v1")
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductCommandController {
@@ -143,7 +166,7 @@ public class ProductCommandController {
     public ResponseEntity<?> createProduct(ProductDTO productDTO) throws Exception {
 
         final CreateProductCommand createProductCommand = CreateProductCommand.builder()
-                .id(productDTO.getId())
+                .id(UUID.randomUUID())
                 .productName(productDTO.getProductName())
                 .quantity(productDTO.getQuantity())
                 .price(productDTO.getPrice())
@@ -170,6 +193,7 @@ public class ProductCommandController {
 
 }
 
+
 ```
 
 ## Query Dispatcher
@@ -179,25 +203,29 @@ public class ProductCommandController {
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class QueryCommandHandler {
+
     private final QueryDispatcher queryDispatcher;
 
-    @GetMapping
-    public ResponseEntity<?> getExample(UUID id) throws Exception {
-        FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery
-                .builder()
-                .productId(id)
+    @GetMapping("/{productId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getProductById(@PathVariable("productId") UUID productId) {
+        final FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery.builder()
+                .productId(productId)
                 .build();
-        List<Integer> result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.multipleInstancesOf(Integer.class));
+        final Product result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.instanceOf(Product.class));
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/items")
-    public ResponseEntity<?> getItem(UUID id) throws Exception {
-        ItemQuery itemQuery = ItemQuery.builder().build();
-        List<Integer> result = queryDispatcher.dispatch(itemQuery, ResponseType.multipleInstancesOf(Integer.class));
-        return ResponseEntity.ok(result);
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getProducts() {
+        final FindAllProducts findAllProducts = FindAllProducts.builder().build();
+        final List<Product> products = queryDispatcher.dispatch(findAllProducts, ResponseType.multipleInstancesOf(Product.class));
+        return ResponseEntity.ok(products);
     }
+
 }
+
 ```
 ## Interceptor 
 ```java
@@ -237,6 +265,19 @@ public class EventaConfig {
 ```
 ## Infrastructure Dependency
 ```yaml
+eventa:
+  kafka:
+    bootstrap-servers: localhost:9092
+    trusted-packages:
+    event-store-name: BaseEvent
+  mongodb:
+    username: username
+    password: password
+    port: 27017
+    host: localhost
+    database: events_store
+    authentication-database: admin
+    
 spring:
   application:
     name: spring-boot-app

@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.eventa.core.registry.EventSourcingHandlerRegistry;
-import org.eventa.core.repository.SnapshotRepository;
 import org.eventa.core.streotype.AggregateSnapshot;
 import org.eventa.core.streotype.RoutingKey;
 import org.springframework.context.ApplicationContext;
@@ -16,20 +15,11 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 
-/**
- * The type Aggregate root.
- */
 @Log4j2
 public abstract class AggregateRoot implements ApplicationContextAware {
 
-    /**
-     * The Id.
-     */
     @Getter
     protected UUID id;
-    /**
-     * The Version.
-     */
     @Setter
     @Getter
     protected int version = -1;
@@ -38,9 +28,6 @@ public abstract class AggregateRoot implements ApplicationContextAware {
     @Getter
     private final int snapshotInterval;
 
-    /**
-     * Instantiates a new Aggregate root.
-     */
     public AggregateRoot() {
         AggregateSnapshot aggregateSnapshotAnnotation = this.getClass().getAnnotation(AggregateSnapshot.class);
         if (aggregateSnapshotAnnotation != null) {
@@ -55,38 +42,21 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    /**
-     * Gets uncommitted changes.
-     *
-     * @return the uncommitted changes
-     */
     public List<BaseEvent> getUncommittedChanges() {
         return this.changes;
     }
 
-    /**
-     * Mark changes as committed.
-     */
     public void markChangesAsCommitted() {
         this.changes.clear();
     }
 
-    /**
-     * Replay events.
-     *
-     * @param events the events
-     */
+
     public void replayEvents(List<BaseEvent> events) {
         for (BaseEvent event : events) {
             apply(event, false);
         }
     }
 
-    /**
-     * Apply.
-     *
-     * @param baseEvent the base event
-     */
     protected void apply(BaseEvent baseEvent) {
         apply(baseEvent, true);
     }
@@ -99,22 +69,12 @@ public abstract class AggregateRoot implements ApplicationContextAware {
         this.version++;
     }
 
-    /**
-     * Take snapshot snapshot.
-     *
-     * @return the snapshot
-     */
     public Snapshot takeSnapshot() {
         Snapshot snapshot = createSnapshot();
         log.info("Took Snapshot of the Aggregate.");
         return snapshot;
     }
 
-    /**
-     * Restore snapshot.
-     *
-     * @param snapshot the snapshot
-     */
     public void restoreSnapshot(Snapshot snapshot) {
         if (snapshot != null) {
             setAggregateState(snapshot.getState());

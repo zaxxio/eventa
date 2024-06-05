@@ -1,3 +1,18 @@
+eventa:
+  kafka:
+    bootstrap-servers: localhost:9092
+    trusted-packages:
+    event-store-name: BaseEvent
+  mongodb:
+    username: username
+    password: password
+    port: 27017
+    host: localhost
+    database: events_store
+    authentication-database: admin
+
+
+
 spring:
   application:
     name: spring-boot-app
@@ -44,16 +59,4 @@ spring:
       host: localhost
 
 
-eventa:
-  kafka:
-    bootstrap-servers: localhost:9092
-    trusted-packages:
-    event-store-name: BaseEvent
-  mongodb:
-    username: username
-    password: password
-    port: 27017
-    host: localhost
-    database: events_store
-    authentication-database: admin
 
