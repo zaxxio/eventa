@@ -26,7 +26,7 @@ public class MongoEventStore implements EventStore {
 
     @Override
     public void saveEvents(UUID aggregateId, String aggregateType, Iterable<BaseEvent> events, int expectedVersion, boolean constructor) throws Exception {
-        List<EventModel> eventStream = eventStoreRepository.findByAggregateIdentifier(aggregateId.toString());
+        List<EventModel> eventStream = eventStoreRepository.findByAggregateIdentifier(aggregateId);
         if (!isEmpty(eventStream) && expectedVersion != -1 && eventStream.get(eventStream.size() - 1).getVersion() != expectedVersion) {
             if (constructor) {
                 throw new RuntimeException("Aggregate with Id " + aggregateId + " already exits");
@@ -39,7 +39,7 @@ public class MongoEventStore implements EventStore {
             event.setVersion(version);
             final EventModel eventModel = EventModel.builder()
                     .timestamp(new Date())
-                    .aggregateIdentifier(String.valueOf(aggregateId))
+                    .aggregateIdentifier(aggregateId)
                     .aggregateType(aggregateType)
                     .version(version)
                     .eventType(event.getClass().getTypeName())
@@ -58,7 +58,7 @@ public class MongoEventStore implements EventStore {
 
     @Override
     public List<BaseEvent> getEventsFromAggregate(UUID aggregateId) {
-        List<EventModel> eventStream = eventStoreRepository.findByAggregateIdentifier(aggregateId.toString());
+        List<EventModel> eventStream = eventStoreRepository.findByAggregateIdentifier(aggregateId);
         if (eventStream == null || isEmpty(eventStream)) {
             throw new RuntimeException("Aggregate " + aggregateId + " not found");
         }

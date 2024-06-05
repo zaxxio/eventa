@@ -3,16 +3,21 @@ package org.eventa.core.config;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.eventa.core.interceptor.CommandInterceptorRegisterer;
 import org.eventa.core.repository.EventStoreRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -38,6 +43,12 @@ public class EventaAutoConfiguration implements BeanFactoryAware {
     @PostConstruct
     public void postConstruct() {
 
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CommandInterceptorRegisterer commandInterceptorRegisterer() {
+        return new CommandInterceptorRegisterer();
     }
 
     @Bean

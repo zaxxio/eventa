@@ -3,6 +3,7 @@ package org.eventa.core.consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.Acknowledgment;
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class KafkaEventConsumer implements EventConsumer {
 
     private final EventDispatcher eventDispatcher;
+
 
     @Override
     @KafkaListener(topicPattern = "${eventa.kafka.event-store-name}", concurrency = "3", containerFactory = "kafkaListenerContainerFactory")

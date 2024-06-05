@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.wsd.app.domain.Product;
 import org.wsd.app.query.FindAllProducts;
 import org.wsd.app.query.FindByProductIdQuery;
-import org.wsd.app.query.ItemQuery;
 import org.eventa.core.dispatcher.QueryDispatcher;
 import org.eventa.core.query.ResponseType;
 
@@ -17,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-public class QueryCommandHandler {
+public class ProductQueryController {
 
     private final QueryDispatcher queryDispatcher;
 
@@ -27,7 +26,7 @@ public class QueryCommandHandler {
         final FindByProductIdQuery findByProductIdQuery = FindByProductIdQuery.builder()
                 .productId(productId)
                 .build();
-        final Product result = queryDispatcher.dispatch(findByProductIdQuery, ResponseType.instanceOf(Product.class));
+        final Product result = this.queryDispatcher.dispatch(findByProductIdQuery, ResponseType.instanceOf(Product.class));
         return ResponseEntity.ok(result);
     }
 
@@ -35,7 +34,7 @@ public class QueryCommandHandler {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> getProducts() {
         final FindAllProducts findAllProducts = FindAllProducts.builder().build();
-        final List<Product> products = queryDispatcher.dispatch(findAllProducts, ResponseType.multipleInstancesOf(Product.class));
+        final List<Product> products = this.queryDispatcher.dispatch(findAllProducts, ResponseType.multipleInstancesOf(Product.class));
         return ResponseEntity.ok(products);
     }
 

@@ -17,7 +17,7 @@ public class ProductCommandInterceptor implements CommandInterceptor {
             Double price = ((CreateProductCommand) command).getPrice();
             double updatedPrice = price - 1;
             ((CreateProductCommand) command).setPrice(updatedPrice);
-            log.info("Applied interceptor on : {}", command);
+            log.info("Interceptor on : {}", command);
         }
     }
 

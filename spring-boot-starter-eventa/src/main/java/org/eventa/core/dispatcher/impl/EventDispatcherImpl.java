@@ -2,6 +2,7 @@ package org.eventa.core.dispatcher.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 import org.eventa.core.events.BaseEvent;
 import org.eventa.core.dispatcher.EventDispatcher;
@@ -17,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 public class EventDispatcherImpl implements EventDispatcher {
     private final EventHandlerRegistry eventHandlerRegistry;
     private final ApplicationContext applicationContext;
+    private final TaskExecutor taskExecutor;
 
     @Override
     public CompletableFuture<Void> dispatch(BaseEvent baseEvent) {
@@ -28,6 +30,6 @@ public class EventDispatcherImpl implements EventDispatcher {
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalStateException("Failed to invoke event handler", e);
             }
-        });
+        }, taskExecutor);
     }
 }

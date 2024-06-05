@@ -2,15 +2,16 @@ package org.wsd.app.projection;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
-import org.wsd.app.domain.Product;
-import org.wsd.app.events.ProductCreatedEvent;
-import org.wsd.app.events.ProductUpdatedEvent;
-import org.wsd.app.query.FindAllProducts;
-import org.wsd.app.query.FindByProductIdQuery;
 import org.eventa.core.streotype.EventHandler;
 import org.eventa.core.streotype.ProjectionGroup;
 import org.eventa.core.streotype.QueryHandler;
+import org.springframework.stereotype.Service;
+import org.wsd.app.domain.Product;
+import org.wsd.app.events.ProductCreatedEvent;
+import org.wsd.app.events.ProductDeletedEvent;
+import org.wsd.app.events.ProductUpdatedEvent;
+import org.wsd.app.query.FindAllProducts;
+import org.wsd.app.query.FindByProductIdQuery;
 import org.wsd.app.repository.ProductRepository;
 
 import java.util.List;
@@ -26,22 +27,22 @@ public class ProductProjection {
 
     @EventHandler(ProductCreatedEvent.class)
     public void on(ProductCreatedEvent productCreatedEvent) {
-        System.out.println("Product " + productCreatedEvent);
+        log.info("Product Created {}", productCreatedEvent);
+
         Product product = new Product();
         product.setId(productCreatedEvent.getId());
         product.setProductName(productCreatedEvent.getProductName());
         product.setQuantity(productCreatedEvent.getQuantity());
         product.setPrice(productCreatedEvent.getPrice());
-
         Product persistedProduct = productRepository.save(product);
         log.info("Persisted Product : {}", persistedProduct);
 
-        System.out.println("Thread Id : " + Thread.currentThread().getId()); // apply any logic here
+        System.out.println("Thread Id : " + Thread.currentThread().getId());
     }
 
     @EventHandler(ProductUpdatedEvent.class)
     public void on(ProductUpdatedEvent productUpdatedEvent) {
-        log.info("Product {}", productUpdatedEvent);
+        log.info("Product Updated {}", productUpdatedEvent);
 
         Optional<Product> optionalProduct = productRepository.findById(productUpdatedEvent.getId());
 
@@ -55,6 +56,13 @@ public class ProductProjection {
         }
 
         System.out.println("Thread Id : " + Thread.currentThread().getId());
+    }
+
+
+    @EventHandler(ProductDeletedEvent.class)
+    public void on(ProductDeletedEvent productDeletedEvent) {
+        log.info("Product Deleted : {}", productDeletedEvent.getId());
+        this.productRepository.deleteById(productDeletedEvent.getId());
     }
 
     @QueryHandler
