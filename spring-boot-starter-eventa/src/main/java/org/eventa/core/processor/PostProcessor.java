@@ -7,6 +7,7 @@ import org.eventa.core.registry.EventHandlerRegistry;
 import org.eventa.core.registry.EventSourcingHandlerRegistry;
 import org.eventa.core.registry.QueryHandlerRegistry;
 import org.eventa.core.streotype.*;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -34,7 +35,7 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
         final Map<String, Object> projectionGroups = this.applicationContext.getBeansWithAnnotation(ProjectionGroup.class);
 
         for (Map.Entry<String, Object> entry : projectionGroups.entrySet()) {
-            Class<?> aClass = entry.getValue().getClass();
+            Class<?> aClass = AopProxyUtils.ultimateTargetClass(entry.getValue());
             Arrays.stream(aClass.getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(EventHandler.class))
                     .forEach(method -> {
@@ -59,7 +60,7 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
         }
 
         for (Map.Entry<String, Object> entry : aggregates.entrySet()) {
-            Class<?> aClass = entry.getValue().getClass();
+            Class<?> aClass = AopProxyUtils.ultimateTargetClass(entry.getValue());
 
             boolean isRoutingKeyExists = false;
             for (Field field : aClass.getDeclaredFields()) {

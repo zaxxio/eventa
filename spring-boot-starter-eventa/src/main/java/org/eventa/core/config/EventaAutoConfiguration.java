@@ -52,7 +52,8 @@ public class EventaAutoConfiguration implements BeanFactoryAware {
     }
 
     @Bean
-    public MongoTransactionManager eventaMongoDBtransactionManager(MongoDatabaseFactory dbFactory) {
+    @ConditionalOnMissingBean
+    public MongoTransactionManager mongoTransactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
 
