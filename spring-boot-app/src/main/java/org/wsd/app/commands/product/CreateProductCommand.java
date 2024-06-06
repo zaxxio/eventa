@@ -1,4 +1,4 @@
-package org.wsd.app.commands;
+package org.wsd.app.commands.product;
 
 import lombok.Getter;
 import lombok.Setter;

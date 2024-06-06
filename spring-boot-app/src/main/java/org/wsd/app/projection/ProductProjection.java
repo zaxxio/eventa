@@ -6,10 +6,13 @@ import org.eventa.core.streotype.EventHandler;
 import org.eventa.core.streotype.ProjectionGroup;
 import org.eventa.core.streotype.QueryHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.wsd.app.domain.Product;
-import org.wsd.app.events.ProductCreatedEvent;
-import org.wsd.app.events.ProductDeletedEvent;
-import org.wsd.app.events.ProductUpdatedEvent;
+import org.wsd.app.events.product.ProductCreatedEvent;
+import org.wsd.app.events.product.ProductDeletedEvent;
+import org.wsd.app.events.product.ProductUpdatedEvent;
 import org.wsd.app.query.FindAllProducts;
 import org.wsd.app.query.FindByProductIdQuery;
 import org.wsd.app.repository.ProductRepository;
@@ -26,6 +29,7 @@ public class ProductProjection {
     private final ProductRepository productRepository;
 
     @EventHandler(ProductCreatedEvent.class)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void on(ProductCreatedEvent productCreatedEvent) {
         log.info("Product Created {}", productCreatedEvent);
 
@@ -37,10 +41,11 @@ public class ProductProjection {
         Product persistedProduct = productRepository.save(product);
         log.info("Persisted Product : {}", persistedProduct);
 
-        System.out.println("Thread Id : " + Thread.currentThread().getId());
+        printThreadId();
     }
 
     @EventHandler(ProductUpdatedEvent.class)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void on(ProductUpdatedEvent productUpdatedEvent) {
         log.info("Product Updated {}", productUpdatedEvent);
 
@@ -55,23 +60,32 @@ public class ProductProjection {
             log.info("Updated Product : {}", persistedProduct);
         }
 
-        System.out.println("Thread Id : " + Thread.currentThread().getId());
+        printThreadId();
     }
 
 
     @EventHandler(ProductDeletedEvent.class)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void on(ProductDeletedEvent productDeletedEvent) {
-        log.info("Product Deleted : {}", productDeletedEvent.getId());
         this.productRepository.deleteById(productDeletedEvent.getId());
+        log.info("Product Deleted : {}", productDeletedEvent.getId());
+        printThreadId();
     }
 
+    private static void printThreadId() {
+        log.info("Thread Id : {}", Thread.currentThread().getId());
+    }
+
+
     @QueryHandler
+    @Transactional(propagation = Propagation.NEVER, isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public Product handle(FindByProductIdQuery findByProductIdQuery) {
         Optional<Product> optionalProduct = productRepository.findById(findByProductIdQuery.getProductId());
         return optionalProduct.orElse(null);
     }
 
     @QueryHandler
+    @Transactional(propagation = Propagation.NEVER, isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public List<Product> handle(FindAllProducts products) {
         return productRepository.findAll();
     }

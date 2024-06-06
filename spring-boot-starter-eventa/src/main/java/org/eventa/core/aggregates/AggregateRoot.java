@@ -19,7 +19,7 @@ import java.util.*;
 public abstract class AggregateRoot implements ApplicationContextAware {
 
     @Getter
-    protected UUID id;
+    protected UUID aggregateId;
     @Setter
     @Getter
     protected int version = -1;
@@ -78,7 +78,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
     public void restoreSnapshot(Snapshot snapshot) {
         if (snapshot != null) {
             setAggregateState(snapshot.getState());
-            this.id = snapshot.getId();
+            this.aggregateId = snapshot.getId();
             this.version = snapshot.getVersion();
         }
     }
@@ -100,7 +100,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
 
     private Snapshot createSnapshot() {
         Object state = getAggregateState();
-        Snapshot snapshot = new Snapshot(id, version, state);
+        Snapshot snapshot = new Snapshot(aggregateId, version, state);
         System.out.println("Version : " + version);
         return snapshot;
     }
@@ -130,7 +130,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
                 if (field.isAnnotationPresent(RoutingKey.class)) {
                     field.setAccessible(true);
                     try {
-                        this.id = baseEvent.getId();
+                        this.aggregateId = baseEvent.getId();
                         field.set(this, baseEvent.getId());
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);

@@ -5,9 +5,9 @@ import org.eventa.core.dispatcher.CommandDispatcher;
 import org.eventa.core.tag.ApiVersion;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.wsd.app.commands.CreateProductCommand;
-import org.wsd.app.commands.DeleteProductCommand;
-import org.wsd.app.commands.UpdateProductCommand;
+import org.wsd.app.commands.product.CreateProductCommand;
+import org.wsd.app.commands.product.DeleteProductCommand;
+import org.wsd.app.commands.product.UpdateProductCommand;
 import org.wsd.app.model.ProductDTO;
 
 import java.util.UUID;
@@ -31,6 +31,7 @@ public class ProductCommandController {
                 .build();
 
         this.commandDispatcher.send(createProductCommand);
+
         return ResponseEntity.ok("");
     }
 

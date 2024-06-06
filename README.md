@@ -108,24 +108,26 @@ public class ProductProjection {
 
     private final ProductRepository productRepository;
 
-    @EventHandler(value = ProductCreatedEvent.class)
+    @EventHandler(ProductCreatedEvent.class)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void on(ProductCreatedEvent productCreatedEvent) {
-        System.out.println("Product " + productCreatedEvent);
+        log.info("Product Created {}", productCreatedEvent);
+
         Product product = new Product();
         product.setId(productCreatedEvent.getId());
         product.setProductName(productCreatedEvent.getProductName());
         product.setQuantity(productCreatedEvent.getQuantity());
         product.setPrice(productCreatedEvent.getPrice());
-
         Product persistedProduct = productRepository.save(product);
         log.info("Persisted Product : {}", persistedProduct);
 
-        System.out.println("Thread Id : " + Thread.currentThread().getId()); // apply any logic here
+        printThreadId();
     }
 
-    @EventHandler(value = ProductUpdatedEvent.class)
+    @EventHandler(ProductUpdatedEvent.class)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void on(ProductUpdatedEvent productUpdatedEvent) {
-        log.info("Product {}", productUpdatedEvent);
+        log.info("Product Updated {}", productUpdatedEvent);
 
         Optional<Product> optionalProduct = productRepository.findById(productUpdatedEvent.getId());
 
@@ -138,16 +140,32 @@ public class ProductProjection {
             log.info("Updated Product : {}", persistedProduct);
         }
 
-        System.out.println("Thread Id : " + Thread.currentThread().getId());
+        printThreadId();
     }
 
+
+    @EventHandler(ProductDeletedEvent.class)
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
+    public void on(ProductDeletedEvent productDeletedEvent) {
+        this.productRepository.deleteById(productDeletedEvent.getId());
+        log.info("Product Deleted : {}", productDeletedEvent.getId());
+        printThreadId();
+    }
+
+    private static void printThreadId() {
+        log.info("Thread Id : {}", Thread.currentThread().getId());
+    }
+
+
     @QueryHandler
+    @Transactional(propagation = Propagation.NEVER, isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public Product handle(FindByProductIdQuery findByProductIdQuery) {
         Optional<Product> optionalProduct = productRepository.findById(findByProductIdQuery.getProductId());
         return optionalProduct.orElse(null);
     }
 
     @QueryHandler
+    @Transactional(propagation = Propagation.NEVER, isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public List<Product> handle(FindAllProducts products) {
         return productRepository.findAll();
     }

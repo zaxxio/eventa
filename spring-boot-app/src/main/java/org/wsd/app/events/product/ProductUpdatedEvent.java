@@ -1,4 +1,4 @@
-package org.wsd.app.events;
+package org.wsd.app.events.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

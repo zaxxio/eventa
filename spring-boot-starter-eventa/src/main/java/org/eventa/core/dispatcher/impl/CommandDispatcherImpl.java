@@ -4,6 +4,7 @@ import org.eventa.core.eventstore.EventStore;
 import org.eventa.core.factory.AggregateFactory;
 import org.eventa.core.interceptor.CommandInterceptorRegisterer;
 import org.eventa.core.repository.SnapshotRepository;
+import org.eventa.core.streotype.RoutingKey;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.stereotype.Component;
 import org.eventa.core.aggregates.AggregateRoot;
@@ -13,6 +14,7 @@ import org.eventa.core.dispatcher.CommandDispatcher;
 import org.eventa.core.registry.CommandHandlerRegistry;
 import org.eventa.core.streotype.CommandHandler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
@@ -62,4 +64,5 @@ public class CommandDispatcherImpl implements CommandDispatcher {
         }
         commandInterceptorRegisterer.getCommandInterceptors().forEach(commandInterceptor -> commandInterceptor.postHandle(command));
     }
+
 }

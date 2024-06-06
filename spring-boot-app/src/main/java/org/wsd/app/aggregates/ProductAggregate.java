@@ -2,12 +2,12 @@ package org.wsd.app.aggregates;
 
 import lombok.NoArgsConstructor;
 import org.eventa.core.streotype.*;
-import org.wsd.app.commands.CreateProductCommand;
-import org.wsd.app.commands.DeleteProductCommand;
-import org.wsd.app.commands.UpdateProductCommand;
-import org.wsd.app.events.ProductCreatedEvent;
-import org.wsd.app.events.ProductDeletedEvent;
-import org.wsd.app.events.ProductUpdatedEvent;
+import org.wsd.app.commands.product.CreateProductCommand;
+import org.wsd.app.commands.product.DeleteProductCommand;
+import org.wsd.app.commands.product.UpdateProductCommand;
+import org.wsd.app.events.product.ProductCreatedEvent;
+import org.wsd.app.events.product.ProductDeletedEvent;
+import org.wsd.app.events.product.ProductUpdatedEvent;
 import org.eventa.core.aggregates.AggregateRoot;
 
 import java.util.UUID;
@@ -25,6 +25,11 @@ public class ProductAggregate extends AggregateRoot {
 
     @CommandHandler(constructor = true)
     public void handle(CreateProductCommand createProductCommand) {
+
+        if (createProductCommand.getQuantity() <= 0) {
+            throw new RuntimeException("Product quantity can not be less than or equal 0.");
+        }
+
         apply(
                 ProductCreatedEvent.builder()
                         .id(createProductCommand.getId())
@@ -44,6 +49,11 @@ public class ProductAggregate extends AggregateRoot {
 
     @CommandHandler
     public void handle(UpdateProductCommand updateProductCommand) {
+
+        if (updateProductCommand.getQuantity() <= 0) {
+            throw new RuntimeException("Product quantity can not be less than or equal 0.");
+        }
+
         apply(
                 ProductUpdatedEvent.builder()
                         .id(updateProductCommand.getId())

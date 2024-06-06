@@ -4,7 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.eventa.core.commands.BaseCommand;
 import org.eventa.core.interceptor.CommandInterceptor;
 import org.springframework.stereotype.Component;
-import org.wsd.app.commands.CreateProductCommand;
+import org.wsd.app.commands.product.CreateProductCommand;
 
 @Log4j2
 @Component
