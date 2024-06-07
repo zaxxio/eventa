@@ -21,6 +21,10 @@ This library provides a robust infrastructure for implementing the Command Query
 4. **Configure Infrastructure:** Set up infrastructure components such as command buses, event stores, and event processors to manage command and event handling.
 5. **Integrate with Application:** Integrate the library with your application to leverage its CQRS and Event-Sourcing capabilities seamlessly.
 
+# Architecture
+![Screenshot](./assets/eventa_arch.png)
+
+
 # Endpoint
 ![Screenshot](./assets/swagger.png)
 
