@@ -10,6 +10,7 @@ import org.wsd.app.commands.product.DeleteProductCommand;
 import org.wsd.app.commands.product.UpdateProductCommand;
 import org.wsd.app.model.ProductDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ public class ProductCommandController {
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
 
+        final List<String> stream = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {
             final CreateProductCommand createProductCommand = CreateProductCommand.builder()
                     .id(UUID.randomUUID())
@@ -31,11 +33,11 @@ public class ProductCommandController {
                     .quantity(productDTO.getQuantity())
                     .price(productDTO.getPrice())
                     .build();
-
-            this.commandDispatcher.send(createProductCommand);
+            String id = this.commandDispatcher.send(createProductCommand);
+            stream.add(id);
         }
 
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(stream);
     }
 
 

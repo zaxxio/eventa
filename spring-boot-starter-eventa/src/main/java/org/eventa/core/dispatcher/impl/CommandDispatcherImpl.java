@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class CommandDispatcherImpl implements CommandDispatcher {
@@ -41,9 +42,12 @@ public class CommandDispatcherImpl implements CommandDispatcher {
     }
 
     @Override
-    public <T extends BaseCommand> void send(T command) throws Exception {
+    public <T extends BaseCommand> String send(T command) throws Exception {
         commandInterceptorRegisterer.getCommandInterceptors().forEach(commandInterceptor -> commandInterceptor.preHandle(command));
         Method commandHandlerMethod = commandHandlerRegistry.getHandler(command.getClass());
+
+        CompletableFuture<String> future = null;
+
         if (commandHandlerMethod != null) {
             Class<?> aggregateClass = commandHandlerMethod.getDeclaringClass();
             UUID aggregateId = command.getId();
@@ -51,7 +55,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
             commandHandlerMethod.invoke(aggregate, command);
             List<BaseEvent> uncommittedChanges = aggregate.getUncommittedChanges();
             try {
-                eventStore.saveEvents(aggregateId, aggregateClass.getSimpleName(), uncommittedChanges, aggregate.getVersion(), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
+                future = eventStore.saveEvents(aggregateId, aggregateClass.getSimpleName(), uncommittedChanges, aggregate.getVersion(), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
                 aggregate.markChangesAsCommitted();
                 /*if (aggregate.getVersion() % aggregate.getSnapshotInterval() == 0) {
                     final Snapshot snapshot = aggregate.takeSnapshot();
@@ -63,6 +67,10 @@ public class CommandDispatcherImpl implements CommandDispatcher {
             }
         }
         commandInterceptorRegisterer.getCommandInterceptors().forEach(commandInterceptor -> commandInterceptor.postHandle(command));
+        if (future != null) {
+            return future.join();
+        }
+        return null;
     }
 
 }

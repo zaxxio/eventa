@@ -48,4 +48,28 @@ public class KafkaEventProducer implements EventProducer {
             return null;
         });
     }
+
+    @Override
+    @Transactional(transactionManager = "kafkaTransactionManager", rollbackFor = Exception.class)
+    public CompletableFuture<String> produceEvent(String topic, BaseEvent baseEvent) {
+        final Message<?> message = MessageBuilder
+                .withPayload(baseEvent)
+                .setHeader(KafkaHeaders.KEY, UUID.randomUUID())
+                .setHeader("schema.version", "v1")
+                .setHeader(KafkaHeaders.TOPIC, eventStoreName)
+                .setHeader(KafkaHeaders.PARTITION, ThreadLocalRandom.current().nextInt(0, 2))
+                .setHeader(KafkaHeaders.TIMESTAMP, System.currentTimeMillis())
+                .build();
+
+        CompletableFuture<? extends SendResult<UUID, ?>> future = kafkaTemplate.send(message);
+
+        return future.thenApply(sendResult -> {
+            try {
+                return sendResult.getProducerRecord().key().toString();
+            } catch (Exception e) {
+                log.error("Error producing Kafka message", e);
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }

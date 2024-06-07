@@ -13,9 +13,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 
@@ -73,5 +75,34 @@ public class MongoEventStore implements EventStore {
         Query query = new Query();
         query.addCriteria(Criteria.where("aggregateId").is(aggregateId).and("version").gte(version));
         return mongoTemplate.find(query, BaseEvent.class);
+    }
+
+    @Override
+    public CompletableFuture<String> saveEvents(UUID aggregateId, String aggregateType, List<BaseEvent> events, int expectedVersion, boolean constructor) throws Exception {
+        List<EventModel> eventStream = eventStoreRepository.findByAggregateIdentifier(aggregateId);
+        if (!isEmpty(eventStream) && expectedVersion != -1 && eventStream.get(eventStream.size() - 1).getVersion() != expectedVersion) {
+            if (constructor) {
+                throw new RuntimeException("Aggregate with Id " + aggregateId + " already exits");
+            }
+            throw new ConcurrencyFailureException("Concurrency problem with aggregate " + aggregateId);
+        }
+        int version = expectedVersion;
+        for (BaseEvent event : events) {
+            version++;
+            event.setVersion(version);
+            final EventModel eventModel = EventModel.builder()
+                    .timestamp(new Date())
+                    .aggregateIdentifier(aggregateId)
+                    .aggregateType(aggregateType)
+                    .version(version)
+                    .eventType(event.getClass().getTypeName())
+                    .baseEvent(event)
+                    .build();
+            final EventModel persistedEventModel = eventStoreRepository.save(eventModel);
+            if (persistedEventModel.getId() != null) {
+                return eventProducer.produceEvent(event.getClass().getSimpleName(), event);
+            }
+        }
+        return null;
     }
 }
