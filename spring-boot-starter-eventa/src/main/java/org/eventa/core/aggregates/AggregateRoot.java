@@ -13,6 +13,7 @@ import org.eventa.core.events.BaseEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 @Log4j2
@@ -24,7 +25,7 @@ public abstract class AggregateRoot implements ApplicationContextAware {
     @Getter
     protected int version = -1;
     private ApplicationContext applicationContext;
-    private final List<BaseEvent> changes = new ArrayList<>();
+    private final List<BaseEvent> changes = new CopyOnWriteArrayList<>();
     @Getter
     private final int snapshotInterval;
 

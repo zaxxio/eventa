@@ -11,5 +11,4 @@ public interface EventStore {
     List<BaseEvent> getEventsFromAggregate(UUID aggregateId);
     List<BaseEvent> findEventsAfterVersion(UUID aggregateId, int version);
     CompletableFuture<String> saveEvents(UUID aggregateId, String aggregateType, List<BaseEvent> events, int expectedVersion, boolean constructor) throws Exception;
-
 }

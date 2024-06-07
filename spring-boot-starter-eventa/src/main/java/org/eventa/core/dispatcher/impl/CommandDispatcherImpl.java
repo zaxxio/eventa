@@ -1,25 +1,27 @@
 package org.eventa.core.dispatcher.impl;
 
+import lombok.extern.log4j.Log4j2;
+import org.eventa.core.aggregates.AggregateRoot;
+import org.eventa.core.cache.CacheConcurrentHashMap;
+import org.eventa.core.commands.BaseCommand;
+import org.eventa.core.dispatcher.CommandDispatcher;
+import org.eventa.core.events.BaseEvent;
 import org.eventa.core.eventstore.EventStore;
 import org.eventa.core.factory.AggregateFactory;
 import org.eventa.core.interceptor.CommandInterceptorRegisterer;
-import org.eventa.core.repository.SnapshotRepository;
-import org.eventa.core.streotype.RoutingKey;
-import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.stereotype.Component;
-import org.eventa.core.aggregates.AggregateRoot;
-import org.eventa.core.commands.BaseCommand;
-import org.eventa.core.events.BaseEvent;
-import org.eventa.core.dispatcher.CommandDispatcher;
 import org.eventa.core.registry.CommandHandlerRegistry;
+import org.eventa.core.repository.SnapshotRepository;
 import org.eventa.core.streotype.CommandHandler;
+import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+@Log4j2
 @Component
 public class CommandDispatcherImpl implements CommandDispatcher {
 
@@ -28,6 +30,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
     private final AggregateFactory aggregateFactory;
     private final EventStore eventStore;
     private final SnapshotRepository snapshotRepository;
+    private final CacheConcurrentHashMap<UUID, Lock> locks = new CacheConcurrentHashMap<>( 10);
 
     public CommandDispatcherImpl(CommandInterceptorRegisterer commandInterceptorRegisterer,
                                  CommandHandlerRegistry commandHandlerRegistry,
@@ -41,36 +44,34 @@ public class CommandDispatcherImpl implements CommandDispatcher {
         this.snapshotRepository = snapshotRepository;
     }
 
+    private Lock getLock(UUID aggregateId) {
+        return locks.computeIfAbsent(aggregateId, id -> new ReentrantLock());
+    }
+
     @Override
     public <T extends BaseCommand> String send(T command) throws Exception {
         commandInterceptorRegisterer.getCommandInterceptors().forEach(commandInterceptor -> commandInterceptor.preHandle(command));
         Method commandHandlerMethod = commandHandlerRegistry.getHandler(command.getClass());
 
-        CompletableFuture<String> future = null;
-
         if (commandHandlerMethod != null) {
             Class<?> aggregateClass = commandHandlerMethod.getDeclaringClass();
             UUID aggregateId = command.getId();
-            AggregateRoot aggregate = aggregateFactory.loadAggregate(aggregateId, aggregateClass.asSubclass(AggregateRoot.class), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
-            commandHandlerMethod.invoke(aggregate, command);
-            List<BaseEvent> uncommittedChanges = aggregate.getUncommittedChanges();
+            Lock lock = getLock(aggregateId);
+
+            lock.lock();
+
             try {
-                future = eventStore.saveEvents(aggregateId, aggregateClass.getSimpleName(), uncommittedChanges, aggregate.getVersion(), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
+                AggregateRoot aggregate = aggregateFactory.loadAggregate(aggregateId, aggregateClass.asSubclass(AggregateRoot.class), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
+                commandHandlerMethod.invoke(aggregate, command);
+                List<BaseEvent> uncommittedChanges = aggregate.getUncommittedChanges();
+                CompletableFuture<String> future = eventStore.saveEvents(aggregateId, aggregateClass.getSimpleName(), uncommittedChanges, aggregate.getVersion(), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
                 aggregate.markChangesAsCommitted();
-                /*if (aggregate.getVersion() % aggregate.getSnapshotInterval() == 0) {
-                    final Snapshot snapshot = aggregate.takeSnapshot();
-                    this.snapshotRepository.save(snapshot);
-                }*/
-            } catch (ConcurrencyFailureException e) {
-                // Log and handle the concurrency issue appropriately
-                throw e;
+                commandInterceptorRegisterer.getCommandInterceptors().forEach(commandInterceptor -> commandInterceptor.postHandle(command));
+                return future.join();
+            } finally {
+                lock.unlock();
             }
-        }
-        commandInterceptorRegisterer.getCommandInterceptors().forEach(commandInterceptor -> commandInterceptor.postHandle(command));
-        if (future != null) {
-            return future.join();
         }
         return null;
     }
-
 }

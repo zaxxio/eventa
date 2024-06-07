@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@ApiVersion(value = "v1")
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductCommandController {
@@ -25,7 +24,7 @@ public class ProductCommandController {
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
 
-        final List<String> stream = new ArrayList<>();
+        final List<String> processed = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {
             final CreateProductCommand createProductCommand = CreateProductCommand.builder()
                     .id(UUID.randomUUID())
@@ -34,10 +33,10 @@ public class ProductCommandController {
                     .price(productDTO.getPrice())
                     .build();
             String id = this.commandDispatcher.send(createProductCommand);
-            stream.add(id);
+            processed.add(id);
         }
 
-        return ResponseEntity.ok(stream);
+        return ResponseEntity.ok(processed);
     }
 
 

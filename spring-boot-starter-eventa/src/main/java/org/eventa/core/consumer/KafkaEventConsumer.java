@@ -24,12 +24,12 @@ public class KafkaEventConsumer implements EventConsumer {
     @Override
     @KafkaListener(topicPattern = "${eventa.kafka.event-store-name}", concurrency = "3", containerFactory = "kafkaListenerContainerFactory")
     public void consume(BaseEvent baseEvent, Acknowledgment ack) {
-        log.info("Received event: {}", baseEvent);
-        log.info("Thread Id : {}", Thread.currentThread().getId());
+        log.debug("Received event: {}", baseEvent);
+        log.debug("Thread Id : {}", Thread.currentThread().getId());
         CompletableFuture<Void> future = this.eventDispatcher.dispatch(baseEvent);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
-                log.info("Successfully processed event: {}", baseEvent);
+                log.debug("Successfully processed event: {}", baseEvent);
                 ack.acknowledge();
             } else {
                 log.error("Error processing event: {}", baseEvent, ex);

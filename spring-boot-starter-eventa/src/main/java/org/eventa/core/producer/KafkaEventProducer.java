@@ -30,7 +30,7 @@ public class KafkaEventProducer implements EventProducer {
     public void produce(String topic, BaseEvent baseEvent) {
         final Message<?> message = MessageBuilder
                 .withPayload(baseEvent)
-                .setHeader(KafkaHeaders.KEY, UUID.randomUUID())
+                .setHeader(KafkaHeaders.KEY, baseEvent.getId())
                 .setHeader("schema.version", "v1")
                 .setHeader(KafkaHeaders.TOPIC, eventStoreName)
                 .setHeader(KafkaHeaders.PARTITION, ThreadLocalRandom.current().nextInt(0, 2))

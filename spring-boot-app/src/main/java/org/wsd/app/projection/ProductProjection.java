@@ -39,7 +39,7 @@ public class ProductProjection {
         product.setQuantity(productCreatedEvent.getQuantity());
         product.setPrice(productCreatedEvent.getPrice());
         Product persistedProduct = productRepository.save(product);
-        log.info("Persisted Product : {}", persistedProduct);
+        log.info("Created Product : {}", persistedProduct);
 
         printThreadId();
     }
@@ -47,7 +47,6 @@ public class ProductProjection {
     @EventHandler(ProductUpdatedEvent.class)
     @Transactional(transactionManager = "transactionManager")
     public void on(ProductUpdatedEvent productUpdatedEvent) {
-        log.info("Product Updated {}", productUpdatedEvent);
 
         Optional<Product> optionalProduct = productRepository.findById(productUpdatedEvent.getId());
 
@@ -68,12 +67,13 @@ public class ProductProjection {
     @Transactional(transactionManager = "transactionManager")
     public void on(ProductDeletedEvent productDeletedEvent) {
         this.productRepository.deleteById(productDeletedEvent.getId());
-        log.info("Product Deleted : {}", productDeletedEvent.getId());
+        log.info("Deleted Product : {}", productDeletedEvent.getId());
+
         printThreadId();
     }
 
     private static void printThreadId() {
-        log.info("Thread Id : {}", Thread.currentThread().getId());
+        log.debug("Thread Id : {}", Thread.currentThread().getId());
     }
 
 
