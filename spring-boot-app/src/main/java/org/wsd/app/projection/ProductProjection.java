@@ -29,6 +29,7 @@ public class ProductProjection {
     private final ProductRepository productRepository;
 
     @EventHandler(ProductCreatedEvent.class)
+    @Transactional(transactionManager = "transactionManager")
     public void on(ProductCreatedEvent productCreatedEvent) {
         log.info("Product Created {}", productCreatedEvent);
 
@@ -44,6 +45,7 @@ public class ProductProjection {
     }
 
     @EventHandler(ProductUpdatedEvent.class)
+    @Transactional(transactionManager = "transactionManager")
     public void on(ProductUpdatedEvent productUpdatedEvent) {
         log.info("Product Updated {}", productUpdatedEvent);
 
@@ -63,6 +65,7 @@ public class ProductProjection {
 
 
     @EventHandler(ProductDeletedEvent.class)
+    @Transactional(transactionManager = "transactionManager")
     public void on(ProductDeletedEvent productDeletedEvent) {
         this.productRepository.deleteById(productDeletedEvent.getId());
         log.info("Product Deleted : {}", productDeletedEvent.getId());
@@ -75,12 +78,14 @@ public class ProductProjection {
 
 
     @QueryHandler
+    @Transactional(transactionManager = "transactionManager")
     public Product handle(FindByProductIdQuery findByProductIdQuery) {
         Optional<Product> optionalProduct = productRepository.findById(findByProductIdQuery.getProductId());
         return optionalProduct.orElse(null);
     }
 
     @QueryHandler
+    @Transactional(transactionManager = "transactionManager")
     public List<Product> handle(FindAllProducts products) {
         return productRepository.findAll();
     }

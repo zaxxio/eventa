@@ -10,6 +10,7 @@ import org.wsd.app.commands.product.DeleteProductCommand;
 import org.wsd.app.commands.product.UpdateProductCommand;
 import org.wsd.app.model.ProductDTO;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,46 +22,49 @@ public class ProductCommandController {
     private final CommandDispatcher commandDispatcher;
 
     @PostMapping
-    public ResponseEntity<?> createProduct(ProductDTO productDTO) throws Exception {
+    public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
 
-        final CreateProductCommand createProductCommand = CreateProductCommand.builder()
-                .id(UUID.randomUUID())
-                .productName(productDTO.getProductName())
-                .quantity(productDTO.getQuantity())
-                .price(productDTO.getPrice())
-                .build();
+        for (ProductDTO productDTO : productDTOS) {
+            final CreateProductCommand createProductCommand = CreateProductCommand.builder()
+                    .id(UUID.randomUUID())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
 
-        this.commandDispatcher.send(createProductCommand);
+            this.commandDispatcher.send(createProductCommand);
+        }
 
         return ResponseEntity.ok("");
     }
 
 
     @PutMapping
-    public ResponseEntity<?> updateProduct(ProductDTO productDTO) throws Exception {
-
-        final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
-                .id(productDTO.getId())
-                .productName(productDTO.getProductName())
-                .quantity(productDTO.getQuantity())
-                .price(productDTO.getPrice())
-                .build();
-
-        this.commandDispatcher.send(updateProductCommand);
+    public ResponseEntity<?> updateProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        for (ProductDTO productDTO : productDTOS) {
+            final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
+                    .id(productDTO.getId())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
+            this.commandDispatcher.send(updateProductCommand);
+        }
         return ResponseEntity.ok("");
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteProduct(ProductDTO productDTO) throws Exception {
+    public ResponseEntity<?> deleteProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        for (ProductDTO productDTO : productDTOS) {
+            final DeleteProductCommand deleteProductCommand = DeleteProductCommand.builder()
+                    .id(productDTO.getId())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
 
-        final DeleteProductCommand deleteProductCommand = DeleteProductCommand.builder()
-                .id(productDTO.getId())
-                .productName(productDTO.getProductName())
-                .quantity(productDTO.getQuantity())
-                .price(productDTO.getPrice())
-                .build();
-
-        this.commandDispatcher.send(deleteProductCommand);
+            this.commandDispatcher.send(deleteProductCommand);
+        }
         return ResponseEntity.ok("");
     }
 

@@ -1,16 +1,16 @@
 package org.wsd.app.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.util.UUID;
 
 @Data
-@ToString
-@Document
+@Entity
 public class Product implements Serializable {
     @Id
     private UUID id;
