@@ -113,7 +113,7 @@ public class ProductProjection {
     private final ProductRepository productRepository;
 
     @EventHandler(ProductCreatedEvent.class)
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager")
     public void on(ProductCreatedEvent productCreatedEvent) {
         log.info("Product Created {}", productCreatedEvent);
 
@@ -129,7 +129,7 @@ public class ProductProjection {
     }
 
     @EventHandler(ProductUpdatedEvent.class)
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager")
     public void on(ProductUpdatedEvent productUpdatedEvent) {
         log.info("Product Updated {}", productUpdatedEvent);
 
@@ -149,7 +149,7 @@ public class ProductProjection {
 
 
     @EventHandler(ProductDeletedEvent.class)
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager")
     public void on(ProductDeletedEvent productDeletedEvent) {
         this.productRepository.deleteById(productDeletedEvent.getId());
         log.info("Product Deleted : {}", productDeletedEvent.getId());
@@ -162,26 +162,24 @@ public class ProductProjection {
 
 
     @QueryHandler
-    @Transactional(propagation = Propagation.NEVER, isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager")
     public Product handle(FindByProductIdQuery findByProductIdQuery) {
         Optional<Product> optionalProduct = productRepository.findById(findByProductIdQuery.getProductId());
         return optionalProduct.orElse(null);
     }
 
     @QueryHandler
-    @Transactional(propagation = Propagation.NEVER, isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager")
     public List<Product> handle(FindAllProducts products) {
         return productRepository.findAll();
     }
 
 }
-
 ```
 ##  Command Dispatcher
 ```java
 
 @RestController
-@ApiVersion(value = "v1")
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductCommandController {
@@ -189,37 +187,54 @@ public class ProductCommandController {
     private final CommandDispatcher commandDispatcher;
 
     @PostMapping
-    public ResponseEntity<?> createProduct(ProductDTO productDTO) throws Exception {
+    public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
 
-        final CreateProductCommand createProductCommand = CreateProductCommand.builder()
-                .id(UUID.randomUUID())
-                .productName(productDTO.getProductName())
-                .quantity(productDTO.getQuantity())
-                .price(productDTO.getPrice())
-                .build();
+        final List<String> processed = new ArrayList<>();
+        for (ProductDTO productDTO : productDTOS) {
+            final CreateProductCommand createProductCommand = CreateProductCommand.builder()
+                    .id(UUID.randomUUID())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
+            String id = this.commandDispatcher.send(createProductCommand);
+            processed.add(id);
+        }
 
-        commandDispatcher.send(createProductCommand);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(processed);
     }
 
 
     @PutMapping
-    public ResponseEntity<?> updateProduct(ProductDTO productDTO) throws Exception {
+    public ResponseEntity<?> updateProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        for (ProductDTO productDTO : productDTOS) {
+            final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
+                    .id(productDTO.getId())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
+            this.commandDispatcher.send(updateProductCommand);
+        }
+        return ResponseEntity.ok("");
+    }
 
-        final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
-                .id(productDTO.getId())
-                .productName(productDTO.getProductName())
-                .quantity(productDTO.getQuantity())
-                .price(productDTO.getPrice())
-                .build();
+    @DeleteMapping
+    public ResponseEntity<?> deleteProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        for (ProductDTO productDTO : productDTOS) {
+            final DeleteProductCommand deleteProductCommand = DeleteProductCommand.builder()
+                    .id(productDTO.getId())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
 
-        commandDispatcher.send(updateProductCommand);
+            this.commandDispatcher.send(deleteProductCommand);
+        }
         return ResponseEntity.ok("");
     }
 
 }
-
-
 ```
 
 ## Query Dispatcher
