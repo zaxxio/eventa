@@ -14,8 +14,6 @@ import java.util.UUID;
 @ToString
 @SuperBuilder
 public class CreateProductCommand extends BaseCommand {
-    @RoutingKey
-    private UUID aggregateId;
     private String productName;
     private Double quantity;
     private Double price;

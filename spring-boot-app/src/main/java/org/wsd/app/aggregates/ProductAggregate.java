@@ -26,6 +26,10 @@ public class ProductAggregate extends AggregateRoot {
     @CommandHandler(constructor = true)
     public void handle(CreateProductCommand createProductCommand) {
 
+        if (createProductCommand.getProductName() == null) {
+            throw new RuntimeException("Product name can not be null or empty.");
+        }
+
         if (createProductCommand.getQuantity() <= 0) {
             throw new RuntimeException("Product quantity can not be less than or equal 0.");
         }

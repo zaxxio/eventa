@@ -17,7 +17,7 @@ public class ProductCommandInterceptor implements CommandInterceptor {
             Double price = ((CreateProductCommand) command).getPrice();
             double updatedPrice = price - 1;
             ((CreateProductCommand) command).setPrice(updatedPrice);
-            log.info("Interceptor on : {}", command);
+            log.info("Pre Handler Interceptor on : {}", command);
         }
     }
 
@@ -25,6 +25,7 @@ public class ProductCommandInterceptor implements CommandInterceptor {
     public void postHandle(BaseCommand command) {
         if (command instanceof CreateProductCommand) {
             // change or logical processing post-processing
+            log.info("Post Handler Interceptor on : {}", command);
         }
     }
 }
