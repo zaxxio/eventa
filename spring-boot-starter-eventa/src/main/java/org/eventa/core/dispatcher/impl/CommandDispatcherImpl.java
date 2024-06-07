@@ -30,7 +30,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
     private final AggregateFactory aggregateFactory;
     private final EventStore eventStore;
     private final SnapshotRepository snapshotRepository;
-    private final CacheConcurrentHashMap<UUID, Lock> locks = new CacheConcurrentHashMap<>( 10);
+    private final CacheConcurrentHashMap<UUID, Lock> locks = new CacheConcurrentHashMap<>( 10); // LRUCache
 
     public CommandDispatcherImpl(CommandInterceptorRegisterer commandInterceptorRegisterer,
                                  CommandHandlerRegistry commandHandlerRegistry,
@@ -57,9 +57,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
             Class<?> aggregateClass = commandHandlerMethod.getDeclaringClass();
             UUID aggregateId = command.getId();
             Lock lock = getLock(aggregateId);
-
             lock.lock();
-
             try {
                 AggregateRoot aggregate = aggregateFactory.loadAggregate(aggregateId, aggregateClass.asSubclass(AggregateRoot.class), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
                 commandHandlerMethod.invoke(aggregate, command);

@@ -14,4 +14,5 @@ public class ProductCreatedEvent extends BaseEvent {
     private String productName;
     private Double quantity;
     private Double price;
+    private String threadName;
 }

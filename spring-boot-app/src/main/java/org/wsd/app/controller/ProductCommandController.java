@@ -23,7 +23,6 @@ public class ProductCommandController {
 
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
-
         final List<String> processed = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {
             final CreateProductCommand createProductCommand = CreateProductCommand.builder()
@@ -32,10 +31,9 @@ public class ProductCommandController {
                     .quantity(productDTO.getQuantity())
                     .price(productDTO.getPrice())
                     .build();
-            String id = this.commandDispatcher.send(createProductCommand);
+            final String id = this.commandDispatcher.send(createProductCommand);
             processed.add(id);
         }
-
         return ResponseEntity.ok(processed);
     }
 

@@ -1,7 +1,12 @@
 package org.wsd.app.aggregates;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.eventa.core.streotype.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wsd.app.commands.product.CreateProductCommand;
 import org.wsd.app.commands.product.DeleteProductCommand;
 import org.wsd.app.commands.product.UpdateProductCommand;
@@ -12,16 +17,22 @@ import org.eventa.core.aggregates.AggregateRoot;
 
 import java.util.UUID;
 
+@Data
 @Aggregate
+@ToString
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @AggregateSnapshot(interval = 2)
 public class ProductAggregate extends AggregateRoot {
+
+    private static final Logger log = LoggerFactory.getLogger(ProductAggregate.class);
 
     @RoutingKey
     private UUID id;
     private String productName;
     private double quantity;
     private double price;
+    private String threadName;
 
     @CommandHandler(constructor = true)
     public void handle(CreateProductCommand createProductCommand) {
@@ -38,6 +49,7 @@ public class ProductAggregate extends AggregateRoot {
                 ProductCreatedEvent.builder()
                         .id(createProductCommand.getId())
                         .productName(createProductCommand.getProductName())
+                        .threadName(Thread.currentThread().getName())
                         .quantity(createProductCommand.getQuantity())
                         .price(createProductCommand.getPrice())
                         .build()
@@ -49,6 +61,7 @@ public class ProductAggregate extends AggregateRoot {
         this.productName = productCreatedEvent.getProductName();
         this.price = productCreatedEvent.getPrice();
         this.quantity += 1;
+        this.threadName = productCreatedEvent.getThreadName();
     }
 
     @CommandHandler
@@ -64,6 +77,7 @@ public class ProductAggregate extends AggregateRoot {
                         .productName(updateProductCommand.getProductName())
                         .quantity(updateProductCommand.getQuantity())
                         .price(updateProductCommand.getPrice())
+                        .threadName(Thread.currentThread().getName())
                         .build()
         );
     }
@@ -73,6 +87,7 @@ public class ProductAggregate extends AggregateRoot {
         this.productName = productUpdatedEvent.getProductName();
         this.price = productUpdatedEvent.getPrice();
         this.quantity = productUpdatedEvent.getQuantity();
+        this.threadName = productUpdatedEvent.getThreadName();
     }
 
     @CommandHandler
@@ -83,6 +98,7 @@ public class ProductAggregate extends AggregateRoot {
                         .productName(deleteProductCommand.getProductName())
                         .price(deleteProductCommand.getPrice())
                         .quantity(deleteProductCommand.getQuantity())
+                        .threadName(Thread.currentThread().getName())
                         .build()
         );
     }
@@ -92,6 +108,8 @@ public class ProductAggregate extends AggregateRoot {
         this.productName = productDeletedEvent.getProductName();
         this.price = productDeletedEvent.getPrice();
         this.quantity = productDeletedEvent.getQuantity();
+        this.threadName = productDeletedEvent.getThreadName();
+
     }
 
 }

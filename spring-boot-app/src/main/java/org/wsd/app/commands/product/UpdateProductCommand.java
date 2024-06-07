@@ -12,4 +12,5 @@ public class UpdateProductCommand extends BaseCommand {
     private String productName;
     private Double quantity;
     private Double price;
+    private String threadName;
 }

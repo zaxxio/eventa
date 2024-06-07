@@ -19,6 +19,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+
 @Component
 @RequiredArgsConstructor
 public class MongoEventStore implements EventStore {
@@ -27,7 +28,7 @@ public class MongoEventStore implements EventStore {
     private final EventProducer eventProducer;
     private final MongoTemplate mongoTemplate;
 
-    private final CacheConcurrentHashMap<UUID, Lock> locks = new CacheConcurrentHashMap<>(10000); // Adjust the max size as needed
+    private final CacheConcurrentHashMap<UUID, Lock> locks = new CacheConcurrentHashMap<>(10); // Adjust the max size as needed
 
     private Lock getLock(UUID aggregateId) {
         synchronized (locks) {
