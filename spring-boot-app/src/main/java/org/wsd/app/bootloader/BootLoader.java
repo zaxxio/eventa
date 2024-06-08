@@ -17,8 +17,7 @@ public class BootLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
-        UUID productId = UUID.randomUUID();
+        /*UUID productId = UUID.randomUUID();
         Faker faker = new Faker();
 
         final CreateProductCommand createProductCommand = CreateProductCommand.builder()
@@ -28,6 +27,7 @@ public class BootLoader implements CommandLineRunner {
                 .threadName(Thread.currentThread().getName())
                 .price((double) faker.number().randomDigitNotZero())
                 .build();
+
         final String id = this.commandDispatcher.send(createProductCommand);
 
         new Thread(() -> {
@@ -60,6 +60,6 @@ public class BootLoader implements CommandLineRunner {
                     throw new RuntimeException(e);
                 }
             }
-        }).start();
+        }).start();*/
     }
 }

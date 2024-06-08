@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -44,6 +46,15 @@ public class EventaAutoConfiguration implements BeanFactoryAware {
     public void postConstruct() {
 
     }
+
+    @Bean
+    public TaskExecutor eventaTaskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setThreadNamePrefix("eventa-group");
+        taskExecutor.setConcurrencyLimit(Runtime.getRuntime().availableProcessors() / 2);
+        return taskExecutor;
+    }
+
 
     @Bean
     @ConditionalOnMissingBean

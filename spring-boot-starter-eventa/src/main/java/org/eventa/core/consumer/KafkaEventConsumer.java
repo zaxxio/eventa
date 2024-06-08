@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.Acknowledgment;
@@ -20,7 +21,6 @@ public class KafkaEventConsumer implements EventConsumer {
 
     private final EventDispatcher eventDispatcher;
 
-
     @Override
     @KafkaListener(topicPattern = "${eventa.kafka.event-store-name}", concurrency = "3", containerFactory = "kafkaListenerContainerFactory")
     public void consume(BaseEvent baseEvent, Acknowledgment ack) {
@@ -36,6 +36,11 @@ public class KafkaEventConsumer implements EventConsumer {
                 // Handle exception (e.g., retry logic, dead-letter queue, etc.)
             }
         });
+    }
+
+    @DltHandler
+    public void problem(BaseEvent baseEvent, Acknowledgment ack) {
+        log.error("Not Processed {}", baseEvent);
     }
 
 }

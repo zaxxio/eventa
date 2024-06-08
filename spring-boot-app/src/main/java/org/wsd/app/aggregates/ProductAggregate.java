@@ -9,9 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wsd.app.commands.product.CreateProductCommand;
 import org.wsd.app.commands.product.DeleteProductCommand;
+import org.wsd.app.commands.product.ReserveProductCommand;
 import org.wsd.app.commands.product.UpdateProductCommand;
 import org.wsd.app.events.product.ProductCreatedEvent;
 import org.wsd.app.events.product.ProductDeletedEvent;
+import org.wsd.app.events.product.ProductReservedEvent;
 import org.wsd.app.events.product.ProductUpdatedEvent;
 import org.eventa.core.aggregates.AggregateRoot;
 
@@ -54,6 +56,36 @@ public class ProductAggregate extends AggregateRoot {
                         .price(createProductCommand.getPrice())
                         .build()
         );
+    }
+
+    @CommandHandler
+    public void handle(ReserveProductCommand reserveProductCommand) {
+
+        if (reserveProductCommand.getProductName() == null) {
+            throw new RuntimeException("Product name can not be null or empty.");
+        }
+
+        if (reserveProductCommand.getQuantity() <= 0) {
+            throw new RuntimeException("Product quantity can not be less than or equal 0.");
+        }
+
+        apply(
+                ProductReservedEvent.builder()
+                        .id(reserveProductCommand.getId())
+                        .productName(reserveProductCommand.getProductName())
+                        .threadName(Thread.currentThread().getName())
+                        .quantity(reserveProductCommand.getQuantity())
+                        .price(reserveProductCommand.getPrice())
+                        .build()
+        );
+    }
+
+    @EventSourcingHandler
+    public void on(ProductReservedEvent productReservedEvent) {
+        this.productName = productReservedEvent.getProductName();
+        this.price = productReservedEvent.getPrice();
+        this.quantity -= 1;
+        this.threadName = productReservedEvent.getThreadName();
     }
 
     @EventSourcingHandler

@@ -2,11 +2,8 @@ package org.eventa.core.query;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public interface ResponseType<T> {
     T convert(Object result);

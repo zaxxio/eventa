@@ -38,7 +38,7 @@ public class ProductProjection {
         product.setProductName(productCreatedEvent.getProductName());
         product.setQuantity(productCreatedEvent.getQuantity());
         product.setPrice(productCreatedEvent.getPrice());
-        product.setThreadName(product.getThreadName());
+        product.setThreadName(productCreatedEvent.getThreadName());
         Product persistedProduct = productRepository.save(product);
 
         log.info("Created Product : {}", persistedProduct);
@@ -57,7 +57,7 @@ public class ProductProjection {
             product.setProductName(productUpdatedEvent.getProductName());
             product.setQuantity(productUpdatedEvent.getQuantity());
             product.setPrice(productUpdatedEvent.getPrice());
-            product.setThreadName(product.getThreadName());
+            product.setThreadName(productUpdatedEvent.getThreadName());
             Product persistedProduct = productRepository.save(product);
             log.info("Updated Product : {}", persistedProduct);
         }

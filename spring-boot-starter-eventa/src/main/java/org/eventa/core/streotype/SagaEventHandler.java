@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SagaStep {
-    String stepName();
-    String[] compensatingSteps() default {};
+public @interface SagaEventHandler {
+    String associationProperty() default "";
 }

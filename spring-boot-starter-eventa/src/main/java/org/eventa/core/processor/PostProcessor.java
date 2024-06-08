@@ -2,10 +2,7 @@ package org.eventa.core.processor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.eventa.core.registry.CommandHandlerRegistry;
-import org.eventa.core.registry.EventHandlerRegistry;
-import org.eventa.core.registry.EventSourcingHandlerRegistry;
-import org.eventa.core.registry.QueryHandlerRegistry;
+import org.eventa.core.registry.*;
 import org.eventa.core.streotype.*;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
@@ -14,6 +11,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -21,11 +19,13 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class PostProcessor implements ApplicationListener<ContextRefreshedEvent> {
+
     private final ApplicationContext applicationContext;
     private final CommandHandlerRegistry commandHandlerRegistry;
     private final EventSourcingHandlerRegistry eventSourcingHandlerRegistry;
     private final EventHandlerRegistry eventHandlerRegistry;
     private final QueryHandlerRegistry queryHandlerRegistry;
+    private final SagaHandlerRegistry sagaHandlerRegistry;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -33,6 +33,8 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
         final Map<String, Object> aggregates = this.applicationContext.getBeansWithAnnotation(Aggregate.class);
 
         final Map<String, Object> projectionGroups = this.applicationContext.getBeansWithAnnotation(ProjectionGroup.class);
+
+        final Map<String, Object> sagas = this.applicationContext.getBeansWithAnnotation(Saga.class);
 
         for (Map.Entry<String, Object> entry : projectionGroups.entrySet()) {
             Class<?> aClass = AopProxyUtils.ultimateTargetClass(entry.getValue());
@@ -96,6 +98,22 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
                         }
                     });
         }
+
+        for (Object sagaBean : sagas.values()) {
+            Class<?> sagaClass = AopProxyUtils.ultimateTargetClass(sagaBean);
+            for (Method method : sagaClass.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(StartSaga.class)) {
+                    sagaHandlerRegistry.registerStartSagaHandler(method.getParameterTypes()[0], method);
+                }
+                if (method.isAnnotationPresent(EndSaga.class)) {
+                    sagaHandlerRegistry.registerEndSagaHandler(method.getParameterTypes()[0], method);
+                }
+                if (method.isAnnotationPresent(SagaEventHandler.class)) {
+                    sagaHandlerRegistry.registerSagaEventHandler(method.getParameterTypes()[0], method);
+                }
+            }
+        }
+
 
         log.info("Eventa AutoConfiguration Loaded.");
 
