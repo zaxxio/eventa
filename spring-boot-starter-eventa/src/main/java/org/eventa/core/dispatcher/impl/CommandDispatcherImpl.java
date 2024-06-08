@@ -84,17 +84,27 @@ public class CommandDispatcherImpl implements CommandDispatcher {
 
         if (commandHandlerMethod != null) {
             CompletableFuture.runAsync(() -> {
+                Lock lock = null;
                 try {
                     Class<?> aggregateClass = commandHandlerMethod.getDeclaringClass();
                     UUID aggregateId = command.getId();
+                    lock = getLock(aggregateId);
+                    lock.lock();  // Ensure lock is acquired before proceeding
+
                     AggregateRoot aggregate = aggregateFactory.loadAggregate(aggregateId, aggregateClass.asSubclass(AggregateRoot.class), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
                     commandHandlerMethod.invoke(aggregate, command);
+
                     List<BaseEvent> uncommittedChanges = aggregate.getUncommittedChanges();
                     eventStore.saveEvents(aggregateId, aggregateClass.getSimpleName(), uncommittedChanges, aggregate.getVersion(), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
+
                     aggregate.markChangesAsCommitted();
                     callback.accept(new CommandMessage<>(command), new CommandResultMessage<>(null));
                 } catch (Exception e) {
                     callback.accept(new CommandMessage<>(command), new CommandResultMessage<>(e));
+                } finally {
+                    if (lock != null) {
+                        lock.unlock();  // Ensure lock is released
+                    }
                 }
             });
         }

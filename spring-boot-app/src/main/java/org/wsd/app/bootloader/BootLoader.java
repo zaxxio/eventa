@@ -9,6 +9,8 @@ import org.wsd.app.commands.product.CreateProductCommand;
 import org.wsd.app.commands.product.UpdateProductCommand;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 @RequiredArgsConstructor
@@ -17,11 +19,11 @@ public class BootLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        /*UUID productId = UUID.randomUUID();
+        UUID productOneId = UUID.randomUUID();
         Faker faker = new Faker();
 
         final CreateProductCommand createProductCommand = CreateProductCommand.builder()
-                .id(productId)
+                .id(productOneId)
                 .productName(faker.gameOfThrones().character())
                 .quantity((double) faker.number().randomDigitNotZero())
                 .threadName(Thread.currentThread().getName())
@@ -30,36 +32,64 @@ public class BootLoader implements CommandLineRunner {
 
         final String id = this.commandDispatcher.send(createProductCommand);
 
-        new Thread(() -> {
-            for (int i = 0; i < 100; i++) {
-                final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
-                        .id(productId)
-                        .productName(faker.gameOfThrones().character())
-                        .quantity((double) faker.number().randomDigitNotZero())
-                        .price((double) faker.number().randomDigitNotZero())
-                        .build();
-                try {
-                    this.commandDispatcher.send(updateProductCommand);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();
 
-        new Thread(() -> {
-            for (int i = 0; i < 100; i++) {
-                final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
-                        .id(productId)
-                        .productName(faker.gameOfThrones().character())
-                        .quantity((double) faker.number().randomDigitNotZero())
-                        .price((double) faker.number().randomDigitNotZero())
-                        .build();
-                try {
-                    this.commandDispatcher.send(updateProductCommand);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        for (int i = 0; i < 100; i++) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
+                            .id(productOneId)
+                            .productName(faker.gameOfThrones().character())
+                            .quantity((double) faker.number().randomDigitNotZero())
+                            .price((double) faker.number().randomDigitNotZero())
+                            .build();
+                    try {
+                        commandDispatcher.send(updateProductCommand);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
-            }
-        }).start();*/
+            });
+        }
+
+        UUID productTwoId = UUID.randomUUID();
+
+        final CreateProductCommand command = CreateProductCommand.builder()
+                .id(productTwoId)
+                .productName(faker.gameOfThrones().character())
+                .quantity((double) faker.number().randomDigitNotZero())
+                .threadName(Thread.currentThread().getName())
+                .price((double) faker.number().randomDigitNotZero())
+                .build();
+
+        this.commandDispatcher.send(command);
+
+
+        ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        for (int i = 0; i < 100; i++) {
+            service.submit(new Runnable() {
+                @Override
+                public void run() {
+                    final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
+                            .id(productTwoId)
+                            .productName(faker.gameOfThrones().character())
+                            .quantity((double) faker.number().randomDigitNotZero())
+                            .price((double) faker.number().randomDigitNotZero())
+                            .build();
+                    try {
+                        commandDispatcher.send(updateProductCommand);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+            });
+        }
+
+
     }
 }

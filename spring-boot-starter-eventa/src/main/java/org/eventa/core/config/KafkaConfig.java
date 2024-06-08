@@ -19,6 +19,7 @@ public class KafkaConfig {
     public NewTopic eventBusTopic() {
         return TopicBuilder.name(eventBus)
                 .partitions(3)
+                .config("cleanup.policy", "delete")
                 .build();
     }
 
