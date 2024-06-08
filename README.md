@@ -304,6 +304,46 @@ public class EventaConfig {
 }   
 
 ```
+## Saga Orchestration
+```java
+
+@Saga
+@RequiredArgsConstructor
+public class OrderSaga {
+
+    private final CommandDispatcher commandDispatcher;
+    private final QueryDispatcher queryDispatcher;
+
+    @StartSaga
+    @SagaEventHandler(associationProperty = "orderId")
+    public void on(ProductCreatedEvent orderCreatedEvent) throws Exception {
+        commandDispatcher.send(
+                ReserveProductCommand.builder()
+                        .id(orderCreatedEvent.getId())
+                        .productName(orderCreatedEvent.getProductName())
+                        .price(orderCreatedEvent.getPrice())
+                        .threadName(orderCreatedEvent.getThreadName())
+                        .quantity(orderCreatedEvent.getQuantity())
+                        .build() 
+        );
+        System.out.println("Saga Called");
+    }
+
+    @SagaEventHandler(associationProperty = "orderId")
+    public void on(ProductReservedEvent productReservedEvent) {
+        System.out.println("Product Reserved!!");
+    }
+
+    @EndSaga
+    @SagaEventHandler(associationProperty = "orderId")
+    public void on(PaymentProcessedEvent paymentProcessedEvent){
+
+    }
+
+}
+
+```
+
 ## Infrastructure Dependency
 ```yaml
 eventa:

@@ -30,7 +30,7 @@ public class OrderSaga {
                         .price(orderCreatedEvent.getPrice())
                         .threadName(orderCreatedEvent.getThreadName())
                         .quantity(orderCreatedEvent.getQuantity())
-                        .build() // this will send ProductReserved Command
+                        .build()
         );
         System.out.println("Saga Called");
     }
