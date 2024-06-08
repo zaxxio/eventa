@@ -31,16 +31,15 @@ public class SagaHandler {
 
     public void handleSagaEvent(BaseEvent event) {
         Method method = findSagaMethod(event.getClass());
-        if (method != null) {
-            try {
-                Object sagaInstance = applicationContext.getBean(method.getDeclaringClass());
-                method.invoke(sagaInstance, event);
-                // manageSagaState(event, method);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to invoke saga method", e);
-            }
-        } else {
-            throw new RuntimeException("No saga method found for event: " + event.getClass());
+        if (method == null) {
+            return;
+        }
+        try {
+            Object sagaInstance = applicationContext.getBean(method.getDeclaringClass());
+            method.invoke(sagaInstance, event);
+            // manageSagaState(event, method);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to invoke saga method", e);
         }
     }
 

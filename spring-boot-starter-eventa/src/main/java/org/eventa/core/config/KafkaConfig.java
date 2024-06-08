@@ -9,14 +9,25 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${eventa.kafka.event-store-name}")
-    private String eventStoreName;
+    @Value("${eventa.kafka.event-bus}")
+    private String eventBus;
+
+    @Value("${eventa.kafka.command-bus}")
+    private String commandBus;
 
     @Bean
-    public NewTopic baseEventTopic() {
-        return TopicBuilder.name(eventStoreName)
+    public NewTopic eventBusTopic() {
+        return TopicBuilder.name(eventBus)
                 .partitions(3)
                 .build();
     }
+
+
+/*    @Bean
+    public NewTopic commandBusTopic() {
+        return TopicBuilder.name(commandBus)
+                .partitions(3)
+                .build();
+    }*/
 
 }

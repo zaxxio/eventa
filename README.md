@@ -350,7 +350,8 @@ eventa:
   kafka:
     bootstrap-servers: localhost:9092
     trusted-packages:
-    event-store-name: BaseEvent
+    command-bus: BaseCommand
+    event-bus: BaseEvent
   mongodb:
     username: username
     password: password

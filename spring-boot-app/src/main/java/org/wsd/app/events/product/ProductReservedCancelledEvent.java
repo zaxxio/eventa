@@ -1,4 +1,4 @@
-package org.wsd.app.events.order;
+package org.wsd.app.events.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import org.eventa.core.events.BaseEvent;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCreatedEvent extends BaseEvent {
+public class ProductReservedCancelledEvent extends BaseEvent {
     private String productName;
     private Double quantity;
     private Double price;

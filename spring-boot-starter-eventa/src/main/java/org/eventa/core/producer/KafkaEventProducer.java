@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @RequiredArgsConstructor
 public class KafkaEventProducer implements EventProducer {
-    @Value("${eventa.kafka.event-store-name}")
+    @Value("${eventa.kafka.event-bus}")
     private String eventStoreName;
     private final KafkaTemplate<UUID, Object> kafkaTemplate;
 

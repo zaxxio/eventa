@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.wsd.app.domain.Product;
 import org.wsd.app.events.product.ProductCreatedEvent;
 import org.wsd.app.events.product.ProductDeletedEvent;
+import org.wsd.app.events.product.ProductReservedEvent;
 import org.wsd.app.events.product.ProductUpdatedEvent;
 import org.wsd.app.query.FindAllProducts;
 import org.wsd.app.query.FindByProductIdQuery;
@@ -44,6 +45,13 @@ public class ProductProjection {
         log.info("Created Product : {}", persistedProduct);
 
         printThreadId();
+    }
+
+
+    @EventHandler(ProductReservedEvent.class)
+    @Transactional(transactionManager = "transactionManager")
+    public void on(ProductReservedEvent productReservedEvent) {
+
     }
 
     @EventHandler(ProductUpdatedEvent.class)
