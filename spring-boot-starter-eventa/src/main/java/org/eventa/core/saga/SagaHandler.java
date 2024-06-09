@@ -37,7 +37,7 @@ public class SagaHandler {
         try {
             Object sagaInstance = applicationContext.getBean(method.getDeclaringClass());
             method.invoke(sagaInstance, event);
-            //manageSagaState(event, method);
+            manageSagaState(event, method);
         } catch (Exception e) {
             throw new RuntimeException("Failed to invoke saga method", e);
         }
@@ -64,34 +64,51 @@ public class SagaHandler {
 
     private void saveSagaState(Object event, Method method) throws Exception {
         SagaState sagaState = new SagaState();
-        sagaState.setSagaId(UUID.fromString(getSagaId(event, method)));
-        sagaState.setStepName(method.getName());
+        sagaState.setSagaId(getSagaId(event, method));
+        sagaState.setStepName(method.getParameterTypes()[0].getName());
         sagaState.setPayload(event);
         sagaStateRepository.save(sagaState);
     }
 
     private void removeSagaState(Object event, Method method) {
-        String sagaId = getSagaId(event, method);
-        Optional<SagaState> sagaState = sagaStateRepository.findBySagaId(UUID.fromString(sagaId));
+        UUID sagaId = getSagaId(event, method);
+        Optional<SagaState> sagaState = sagaStateRepository.findBySagaId(sagaId);
         sagaState.ifPresent(sagaStateRepository::delete);
     }
 
-    private String getSagaId(Object event, Method method) {
+    private Field findFieldInClassHierarchy(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+        while (clazz != null) {
+            try {
+                return clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException("Field " + fieldName + " not found in class hierarchy");
+    }
+
+
+    private UUID getSagaId(Object event, Method method) {
         if (method != null && method.isAnnotationPresent(SagaEventHandler.class)) {
             SagaEventHandler annotation = method.getAnnotation(SagaEventHandler.class);
             String associationProperty = annotation.associationProperty();
             try {
-                Field field = event.getClass().getDeclaredField(associationProperty);
+                Field field = findFieldInClassHierarchy(event.getClass(), associationProperty);
                 field.setAccessible(true);
                 Object value = field.get(event);
                 if (value != null) {
-                    return UUID.fromString(value.toString()).toString(); // Ensure the value is a UUID
+                    if (value instanceof UUID) {
+                        return (UUID) value;
+                    } else if (value instanceof String) {
+                        return UUID.fromString((String) value);
+                    }
                 }
             } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
                 e.printStackTrace();
             }
         }
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID();
     }
+
 }
 

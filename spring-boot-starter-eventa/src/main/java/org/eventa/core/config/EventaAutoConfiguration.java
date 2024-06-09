@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.eventa.core.interceptor.CommandInterceptorRegisterer;
 import org.eventa.core.repository.EventStoreRepository;
+import org.eventa.core.repository.SagaStateRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -31,7 +32,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @AutoConfigureAfter(MongoAutoConfiguration.class)
 @EnableConfigurationProperties(EventaProperties.class)
 @ConfigurationPropertiesScan
-@EnableMongoRepositories(basePackageClasses = {EventStoreRepository.class})
+@EnableMongoRepositories(basePackageClasses = {EventStoreRepository.class, SagaStateRepository.class})
 @ComponentScan(basePackages = "org.eventa.core")
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor

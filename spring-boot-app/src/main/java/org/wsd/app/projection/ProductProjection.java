@@ -51,7 +51,7 @@ public class ProductProjection {
     @EventHandler(ProductReservedEvent.class)
     @Transactional(transactionManager = "transactionManager")
     public void on(ProductReservedEvent productReservedEvent) {
-
+        log.info("Product Reserved Event {}", productReservedEvent);
     }
 
     @EventHandler(ProductUpdatedEvent.class)
