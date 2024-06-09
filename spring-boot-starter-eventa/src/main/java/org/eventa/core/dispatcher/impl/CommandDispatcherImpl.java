@@ -89,7 +89,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
                     Class<?> aggregateClass = commandHandlerMethod.getDeclaringClass();
                     UUID aggregateId = command.getId();
                     lock = getLock(aggregateId);
-                    lock.lock();  // Ensure lock is acquired before proceeding
+                    lock.lock();
 
                     AggregateRoot aggregate = aggregateFactory.loadAggregate(aggregateId, aggregateClass.asSubclass(AggregateRoot.class), commandHandlerMethod.getAnnotation(CommandHandler.class).constructor());
                     commandHandlerMethod.invoke(aggregate, command);
@@ -103,7 +103,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
                     callback.accept(new CommandMessage<>(command), new CommandResultMessage<>(e));
                 } finally {
                     if (lock != null) {
-                        lock.unlock();  // Ensure lock is released
+                        lock.unlock();
                     }
                 }
             });

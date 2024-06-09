@@ -37,7 +37,7 @@ public class SagaHandler {
         try {
             Object sagaInstance = applicationContext.getBean(method.getDeclaringClass());
             method.invoke(sagaInstance, event);
-            // manageSagaState(event, method);
+            //manageSagaState(event, method);
         } catch (Exception e) {
             throw new RuntimeException("Failed to invoke saga method", e);
         }

@@ -19,7 +19,7 @@ public class BootLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        UUID productOneId = UUID.randomUUID();
+        /*UUID productOneId = UUID.randomUUID();
         Faker faker = new Faker();
 
         final CreateProductCommand createProductCommand = CreateProductCommand.builder()
@@ -88,7 +88,7 @@ public class BootLoader implements CommandLineRunner {
 
                 }
             });
-        }
+        }*/
 
 
     }

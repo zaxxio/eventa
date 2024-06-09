@@ -4,20 +4,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CommandInterceptorRegisterer {
 
-    private List<CommandInterceptor> commandInterceptors;
+    private CopyOnWriteArrayList<CommandInterceptor> commandInterceptors;
 
     public CommandInterceptorRegisterer() {
-        this.commandInterceptors = new ArrayList<>();
+        this.commandInterceptors = new CopyOnWriteArrayList<>();
     }
 
     public void register(CommandInterceptor commandInterceptor) {
         this.commandInterceptors.add(commandInterceptor);
     }
 
-    public List<CommandInterceptor> getCommandInterceptors() {
+    public CopyOnWriteArrayList<CommandInterceptor> getCommandInterceptors() {
         return commandInterceptors;
     }
 }

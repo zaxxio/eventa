@@ -1,25 +1,38 @@
 [![](https://jitpack.io/v/zaxxio/spring-boot-starter-eventa.svg)](https://jitpack.io/#zaxxio/spring-boot-starter-eventa)
 
-# Eventa (Infrastructure Ready Event-Sourcing and CQRS, Saga Orchestration, High Concurrency Supportive)
+## Getting Started
+
+**Eventa Infrastructure Ready Event-Sourcing and CQRS, Saga Orchestration, High Concurrency Supportive**
+
 ## Overview
 
-This library provides a robust infrastructure for implementing the Command Query Responsibility Segregation (CQRS) pattern along with Event Sourcing in Java applications. CQRS separates the responsibility of handling commands (write operations) from queries (read operations), while Event Sourcing ensures that changes to the application state are captured as a sequence of events.
+Eventa offers a robust framework for implementing Command Query Responsibility Segregation (CQRS) and Event Sourcing in Java applications. It's designed to separate command handling (write operations) from query handling (read operations), capturing all changes to the application state as a sequence of events. This approach ensures a reliable audit trail and state reconstruction.
 
 ## Key Features
 
-- **Command Handling:** Easily define command handlers to process incoming commands for creating, updating, or deleting domain entities.
-- **Event Sourcing:** Implement event sourcing to persist and replay domain events, ensuring a full audit trail of state changes.
-- **Aggregate Root Support:** Simplify the management of domain aggregates with built-in support for Aggregate Roots.
-- **Annotation-Based Configuration:** Configure command handlers and event sourcing using annotations, reducing boilerplate code and promoting clean architecture.
-- **Scalable and Extensible:** Designed to scale with the complexity of the application and easily extend functionality with custom components.
-- **Asynchronous Processing:** Support for asynchronous processing of commands and events for improved performance and responsiveness.
+- **Command Handling:** Process incoming commands for creating, updating, or deleting domain entities.
+- **Event Sourcing:** Persist and replay domain events to ensure a full audit trail and state reconstruction.
+- **Aggregate Root Support:** Manage domain aggregates with ease.
+- **Annotation-Based Configuration:** Simplify configuration using annotations to reduce boilerplate and enhance architecture.
+- **Scalable and Extensible:** Handle growing complexity and extend functionality with custom components.
+- **Asynchronous Processing:** Improve performance with asynchronous processing of commands and events.
+- **Transactional Support:** Maintain data consistency across distributed systems.
+- **High Concurrency Handling:** Optimized for high levels of concurrency.
+- **Saga Orchestration:** Manage complex, multi-step business transactions across microservices.
 
 ## Usage
-1. **Define Commands and Events:** Create classes to represent commands and events that encapsulate changes to domain entities.
-2. **Implement Command Handlers:** Define command handler methods to process incoming commands and update the state of aggregates.
-3. **Apply Event Sourcing:** Utilize event sourcing to persist domain events and rebuild aggregate state from event streams.
-4. **Configure Infrastructure:** Set up infrastructure components such as command buses, event stores, and event processors to manage command and event handling.
-5. **Integrate with Application:** Integrate the library with your application to leverage its CQRS and Event-Sourcing capabilities seamlessly.
+
+1. **Define Commands and Events:** Create command and event classes encapsulating domain entity changes.
+2. **Implement Command Handlers:** Develop command handler methods for processing commands and updating state.
+3. **Apply Event Sourcing:** Use event sourcing to store domain events persistently and rebuild aggregate states.
+4. **Configure Infrastructure:** Set up command buses, event stores, and event processors.
+5. **Integrate Saga Orchestration:** Implement Sagas for managing distributed, long-running business processes.
+6. **Integrate with Your Application:** Seamlessly integrate Eventa to leverage its full CQRS and event-sourcing capabilities.
+
+## Transactional and Concurrency Management
+
+- **ACID Properties:** Ensure atomicity, consistency, isolation, and durability of data operations across services.
+- **High Load Management:** Manage high request volumes efficiently through optimized threading and resource handling.
 
 # Architecture
 ![Screenshot](./assets/eventa_arch.png)
@@ -395,7 +408,6 @@ spring:
       port: 27017
       host: localhost
 ```
-
 ## Copyright 
 ```text
 Copyright 2024 Partha Sutradhar

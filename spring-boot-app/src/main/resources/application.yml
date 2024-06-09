@@ -12,8 +12,6 @@ eventa:
     database: events_store
     authentication-database: admin
 
-
-
 spring:
   application:
     name: spring-boot-app

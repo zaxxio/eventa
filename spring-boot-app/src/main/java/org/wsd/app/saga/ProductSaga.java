@@ -23,7 +23,7 @@ public class ProductSaga {
     private final QueryDispatcher queryDispatcher;
 
     @StartSaga
-    @SagaEventHandler(associationProperty = "orderId")
+    @SagaEventHandler(associationProperty = "id")
     public void on(ProductCreatedEvent productCreatedEvent) throws Exception {
 
         final ReserveProductCommand reserveProductCommand = ReserveProductCommand.builder()
