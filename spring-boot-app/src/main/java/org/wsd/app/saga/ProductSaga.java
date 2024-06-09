@@ -44,7 +44,6 @@ public class ProductSaga {
     }
 
     @SagaEventHandler(associationProperty = "id")
-    @EndSaga
     public void on(ProductReservedEvent productReservedEvent) throws Exception {
         log.info("Product Reserved Event : {}", productReservedEvent);
     }
