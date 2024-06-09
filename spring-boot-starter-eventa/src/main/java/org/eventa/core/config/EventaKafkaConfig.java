@@ -7,13 +7,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
-public class KafkaConfig {
+public class EventaKafkaConfig {
+
+    @Value("${eventa.kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
     @Value("${eventa.kafka.event-bus}")
     private String eventBus;
 
-    @Value("${eventa.kafka.command-bus}")
+    @Value("${eventa.kafka.command-bus:BaseCommand}")
     private String commandBus;
+
+    @Value("${eventa.kafka.concurrency}")
+    private int concurrency;
+
+    @Value("${eventa.kafka.trusted-packages}")
+    private String[] trustedPackages;
 
     @Bean
     public NewTopic eventBusTopic() {
@@ -22,13 +31,4 @@ public class KafkaConfig {
                 .config("cleanup.policy", "delete")
                 .build();
     }
-
-
-/*    @Bean
-    public NewTopic commandBusTopic() {
-        return TopicBuilder.name(commandBus)
-                .partitions(3)
-                .build();
-    }*/
-
 }

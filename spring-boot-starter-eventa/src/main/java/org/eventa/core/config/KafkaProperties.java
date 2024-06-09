@@ -11,5 +11,6 @@ public class KafkaProperties {
     private String eventBus;
     private String commandBus;
     private String bootstrapServers;
+    private int concurrency;
     private String[] trustedPackages;
 }

@@ -2,6 +2,7 @@ package org.eventa.core.saga;
 
 
 import lombok.RequiredArgsConstructor;
+import org.eventa.core.cache.CacheConcurrentHashMap;
 import org.eventa.core.events.BaseEvent;
 import org.eventa.core.registry.SagaHandlerRegistry;
 import org.eventa.core.repository.SagaStateRepository;
@@ -21,6 +22,17 @@ import java.util.UUID;
 
 
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 @Component
 @RequiredArgsConstructor
 public class SagaHandler {
@@ -28,18 +40,24 @@ public class SagaHandler {
     private final ApplicationContext applicationContext;
     private final SagaStateRepository sagaStateRepository;
     private final SagaHandlerRegistry sagaHandlerRegistry;
+    private final CacheConcurrentHashMap<UUID, Lock> sagaLocks = new CacheConcurrentHashMap<>(10000);
 
     public void handleSagaEvent(BaseEvent event) {
         Method method = findSagaMethod(event.getClass());
         if (method == null) {
             return;
         }
+        UUID sagaId = getSagaId(event, method);
+        Lock lock = getLock(sagaId);
+        lock.lock();
         try {
             Object sagaInstance = applicationContext.getBean(method.getDeclaringClass());
             method.invoke(sagaInstance, event);
             manageSagaState(event, method);
         } catch (Exception e) {
             throw new RuntimeException("Failed to invoke saga method", e);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -87,7 +105,6 @@ public class SagaHandler {
         throw new NoSuchFieldException("Field " + fieldName + " not found in class hierarchy");
     }
 
-
     private UUID getSagaId(Object event, Method method) {
         if (method != null && method.isAnnotationPresent(SagaEventHandler.class)) {
             SagaEventHandler annotation = method.getAnnotation(SagaEventHandler.class);
@@ -110,5 +127,9 @@ public class SagaHandler {
         return UUID.randomUUID();
     }
 
+    private Lock getLock(UUID sagaId) {
+        return sagaLocks.computeIfAbsent(sagaId, id -> new ReentrantLock());
+    }
 }
+
 

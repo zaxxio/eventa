@@ -19,7 +19,7 @@ public class BootLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        /*UUID productOneId = UUID.randomUUID();
+        UUID productOneId = UUID.randomUUID();
         Faker faker = new Faker();
 
         final CreateProductCommand createProductCommand = CreateProductCommand.builder()
@@ -31,6 +31,17 @@ public class BootLoader implements CommandLineRunner {
                 .build();
 
         final String id = this.commandDispatcher.send(createProductCommand);
+
+        for (int i = 0; i < 1000; i++) {
+            this.commandDispatcher.send(CreateProductCommand.builder()
+                    .id(UUID.randomUUID())
+                    .productName(faker.gameOfThrones().character())
+                    .quantity((double) faker.number().randomDigitNotZero())
+                    .threadName(Thread.currentThread().getName())
+                    .price((double) faker.number().randomDigitNotZero())
+                    .build()
+            );
+        }
 
 
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -88,7 +99,7 @@ public class BootLoader implements CommandLineRunner {
 
                 }
             });
-        }*/
+        }
 
 
     }

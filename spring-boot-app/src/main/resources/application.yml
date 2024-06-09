@@ -4,6 +4,7 @@ eventa:
     trusted-packages:
     command-bus: BaseCommand
     event-bus: BaseEvent
+    concurrency: 5
   mongodb:
     username: username
     password: password
