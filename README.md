@@ -320,40 +320,66 @@ public class EventaConfig {
 ## Saga Orchestration
 ```java
 
+@Log4j2
 @Saga
 @RequiredArgsConstructor
-public class OrderSaga {
+public class ProductSaga {
 
     private final CommandDispatcher commandDispatcher;
     private final QueryDispatcher queryDispatcher;
 
     @StartSaga
-    @SagaEventHandler(associationProperty = "orderId")
-    public void on(ProductCreatedEvent orderCreatedEvent) throws Exception {
-        commandDispatcher.send(
-                ReserveProductCommand.builder()
-                        .id(orderCreatedEvent.getId())
-                        .productName(orderCreatedEvent.getProductName())
-                        .price(orderCreatedEvent.getPrice())
-                        .threadName(orderCreatedEvent.getThreadName())
-                        .quantity(orderCreatedEvent.getQuantity())
-                        .build() 
-        );
-        System.out.println("Saga Called");
+    @SagaEventHandler(associationProperty = "id")
+    public void on(ProductCreatedEvent productCreatedEvent) throws Exception {
+
+        final ReserveProductCommand reserveProductCommand = ReserveProductCommand.builder()
+                .id(productCreatedEvent.getId())
+                .productName(productCreatedEvent.getProductName())
+                .price(productCreatedEvent.getPrice())
+                .threadName(productCreatedEvent.getThreadName())
+                .quantity(productCreatedEvent.getQuantity())
+                .build();
+
+        this.commandDispatcher.send(reserveProductCommand, (commandMessage, commandResultMessage) -> {
+            if (commandResultMessage.isExceptional()) {
+                log.info("Problem {}", commandResultMessage.getException().getMessage());
+            } else {
+                log.info("Saga : {}", commandMessage.getCommand());
+            }
+        });
     }
 
-    @SagaEventHandler(associationProperty = "orderId")
-    public void on(ProductReservedEvent productReservedEvent) {
-        System.out.println("Product Reserved!!");
+    @SagaEventHandler(associationProperty = "id")
+    public void on(ProductReservedEvent productReservedEvent) throws Exception {
+        log.info("Product Reserved Event : {}", productReservedEvent);
+
+        final ProcessPaymentCommand processPaymentCommand = ProcessPaymentCommand.builder()
+                .id(productReservedEvent.getId())
+                .build();
+
+        this.commandDispatcher.send(processPaymentCommand, (commandMessage, commandResultMessage) -> {
+            if (commandResultMessage.isExceptional()) {
+                log.info("Problem {}", commandResultMessage.getException().getMessage());
+            } else {
+                log.info("Saga : {}", commandMessage.getCommand());
+            }
+        });
+    }
+
+    @SagaEventHandler(associationProperty = "id")
+    public void on(ProductReservedCancelledEvent productReservedCancelledEvent) throws Exception {
+
     }
 
     @EndSaga
-    @SagaEventHandler(associationProperty = "orderId")
-    public void on(PaymentProcessedEvent paymentProcessedEvent){
-
+    @SagaEventHandler(associationProperty = "id")
+    public void on(PaymentProcessedEvent paymentProcessedEvent) {
+        log.info("Payment Processed Event : {}", paymentProcessedEvent);
+        log.info("Saga Cleared");
     }
 
 }
+
 
 ```
 
