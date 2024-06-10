@@ -45,6 +45,7 @@ public class ProductProjection {
         log.info("Created Product : {}", persistedProduct);
 
         printThreadId();
+
     }
 
 
