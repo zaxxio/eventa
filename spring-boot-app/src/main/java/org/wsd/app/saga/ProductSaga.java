@@ -8,6 +8,7 @@ import org.eventa.core.streotype.EndSaga;
 import org.eventa.core.streotype.Saga;
 import org.eventa.core.streotype.SagaEventHandler;
 import org.eventa.core.streotype.StartSaga;
+import org.wsd.app.commands.product.ProcessPaymentCommand;
 import org.wsd.app.commands.product.ReserveProductCommand;
 import org.wsd.app.events.payment.PaymentProcessedEvent;
 import org.wsd.app.events.product.ProductCreatedEvent;
@@ -46,6 +47,18 @@ public class ProductSaga {
     @SagaEventHandler(associationProperty = "id")
     public void on(ProductReservedEvent productReservedEvent) throws Exception {
         log.info("Product Reserved Event : {}", productReservedEvent);
+
+        final ProcessPaymentCommand processPaymentCommand = ProcessPaymentCommand.builder()
+                .id(productReservedEvent.getId())
+                .build();
+
+        this.commandDispatcher.send(processPaymentCommand, (commandMessage, commandResultMessage) -> {
+            if (commandResultMessage.isExceptional()) {
+                log.info("Problem {}", commandResultMessage.getException().getMessage());
+            } else {
+                log.info("Saga : {}", commandMessage.getCommand());
+            }
+        });
     }
 
     @SagaEventHandler(associationProperty = "id")
@@ -56,7 +69,8 @@ public class ProductSaga {
     @EndSaga
     @SagaEventHandler(associationProperty = "id")
     public void on(PaymentProcessedEvent paymentProcessedEvent) {
-
+        log.info("Payment Processed Event : {}", paymentProcessedEvent);
+        log.info("Saga Cleared");
     }
 
 }

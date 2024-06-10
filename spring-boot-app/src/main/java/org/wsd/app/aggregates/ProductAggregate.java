@@ -7,10 +7,8 @@ import lombok.ToString;
 import org.eventa.core.streotype.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wsd.app.commands.product.CreateProductCommand;
-import org.wsd.app.commands.product.DeleteProductCommand;
-import org.wsd.app.commands.product.ReserveProductCommand;
-import org.wsd.app.commands.product.UpdateProductCommand;
+import org.wsd.app.commands.product.*;
+import org.wsd.app.events.payment.PaymentProcessedEvent;
 import org.wsd.app.events.product.ProductCreatedEvent;
 import org.wsd.app.events.product.ProductDeletedEvent;
 import org.wsd.app.events.product.ProductReservedEvent;
@@ -79,6 +77,22 @@ public class ProductAggregate extends AggregateRoot {
                         .build()
         );
     }
+
+    @CommandHandler
+    public void handle(ProcessPaymentCommand processPaymentCommand) {
+        apply(
+                PaymentProcessedEvent.builder()
+                        .id(processPaymentCommand.getId())
+                        .build()
+        );
+    }
+
+    @EventSourcingHandler
+    public void on(PaymentProcessedEvent paymentProcessedEvent) {
+        super.id = paymentProcessedEvent.getProductId();
+    }
+
+
 
     @EventSourcingHandler
     public void on(ProductReservedEvent productReservedEvent) {

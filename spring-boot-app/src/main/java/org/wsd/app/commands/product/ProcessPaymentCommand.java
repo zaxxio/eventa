@@ -1,11 +1,11 @@
-package org.wsd.app.events.payment;
+package org.wsd.app.commands.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.eventa.core.events.BaseEvent;
+import org.eventa.core.commands.BaseCommand;
 
 import java.util.UUID;
 
@@ -14,6 +14,6 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentProcessedEvent extends BaseEvent {
+public class ProcessPaymentCommand extends BaseCommand {
     private UUID productId;
 }

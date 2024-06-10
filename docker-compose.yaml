@@ -12,7 +12,6 @@ services:
       - "2181:2181"
     networks:
       - cloudNetwork
-
   # Kafka Broker for Message Dispatching
   kafka-1:
     container_name: kafka-1
