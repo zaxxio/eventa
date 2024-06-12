@@ -382,7 +382,25 @@ public class ProductSaga {
 
 
 ```
+## Distributed Leader Not Leader
+```java
+@Log4j2
+@Service
+public class DistributedSystemService {
 
+
+    @Leader
+    public void methodA(){
+        log.info("I'm a Leader.");
+    }
+
+    @NotLeader
+    public void methodB() {
+        log.info("I'm not a Leader.");
+    }
+
+}
+```
 ## Infrastructure Dependency
 ```yaml
 eventa:
@@ -433,27 +451,6 @@ spring:
       password: password
       port: 27017
       host: localhost
-```
-# Distributed Leader Not Leader
-```java
-@Log4j2
-@Service
-public class DistributedSystemService {
-
-
-    @Leader
-    public void methodA(){
-        log.info("I'm a Leader.");
-    }
-
-    @NotLeader
-    public void methodB() {
-        log.info("I'm not a Leader.");
-    }
-
-}
-
-
 ```
 
 ## Copyright 
