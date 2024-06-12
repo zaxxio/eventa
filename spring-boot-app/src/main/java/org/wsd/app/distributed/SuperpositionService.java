@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
-public class DistributedSystemService {
+public class SuperpositionService {
 
 
     @Leader

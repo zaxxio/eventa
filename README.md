@@ -386,7 +386,7 @@ public class ProductSaga {
 ```java
 @Log4j2
 @Service
-public class DistributedSystemService {
+public class SuperpositionService {
 
 
     @Leader
