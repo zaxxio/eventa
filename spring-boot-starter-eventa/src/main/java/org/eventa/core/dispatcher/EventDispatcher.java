@@ -6,5 +6,5 @@ import org.springframework.scheduling.annotation.Async;
 import java.util.concurrent.CompletableFuture;
 
 public interface EventDispatcher {
-    CompletableFuture<Void> dispatch(BaseEvent baseEvent);
+    CompletableFuture<Void> dispatch(BaseEvent baseEvent) throws Exception;
 }

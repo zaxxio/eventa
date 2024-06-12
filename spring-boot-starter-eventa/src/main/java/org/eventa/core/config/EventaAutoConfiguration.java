@@ -3,7 +3,14 @@ package org.eventa.core.config;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.leader.LeaderLatch;
+import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.eventa.core.interceptor.CommandInterceptorRegisterer;
+import org.eventa.core.registry.LeaderHandlerRegistry;
+import org.eventa.core.registry.NotLeaderHandlerRegistry;
 import org.eventa.core.repository.EventStoreRepository;
 import org.eventa.core.repository.SagaStateRepository;
 import org.springframework.beans.BeansException;
@@ -12,9 +19,11 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -26,9 +35,12 @@ import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 @Log4j2
 @AutoConfiguration
-@Configuration(proxyBeanMethods = false)
+@Configuration(proxyBeanMethods = true)
 @AutoConfigureAfter(MongoAutoConfiguration.class)
 @EnableConfigurationProperties(EventaProperties.class)
 @ConfigurationPropertiesScan
@@ -42,11 +54,61 @@ public class EventaAutoConfiguration implements BeanFactoryAware {
 
     private final EventaProperties eventaProperties;
     private BeanFactory beanFactory;
+    private final LeaderHandlerRegistry leaderHandlerRegistry;
+    private final NotLeaderHandlerRegistry notLeaderHandlerRegistry;
 
     @PostConstruct
     public void postConstruct() {
 
     }
+
+
+//    @Bean(initMethod = "start", destroyMethod = "close")
+//    @ConditionalOnMissingBean
+//    public CuratorFramework curatorFramework() {
+//        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(eventaProperties.getCurator().getHostname()
+//                , new ExponentialBackoffRetry(eventaProperties.getCurator().getBaseSleepTimeMs(), eventaProperties.getCurator().getMaxRetries()));
+//        return curatorFramework;
+//    }
+//
+//    @Bean
+//    @ConditionalOnMissingBean
+//    public LeaderLatch leaderLatch(CuratorFramework curatorFramework, ApplicationContext applicationContext) {
+//        LeaderLatch leaderLatch = new LeaderLatch(curatorFramework, "/leader/latch");
+//        leaderLatch.addListener(new LeaderLatchListener() {
+//            @Override
+//            public void isLeader() {
+//                for (Class<?> handlerClass : leaderHandlerRegistry.getRegisteredClasses()) {
+//                    Method handlerMethod = leaderHandlerRegistry.getHandler(handlerClass);
+//                    try {
+//                        Object bean = applicationContext.getBean(handlerClass);
+//                        handlerMethod.invoke(bean);
+//                    } catch (IllegalAccessException | InvocationTargetException e) {
+//                        throw new RuntimeException("Failed to invoke handler method", e);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void notLeader() {
+//                for (Class<?> handlerClass : notLeaderHandlerRegistry.getRegisteredClasses()) {
+//                    Method handlerMethod = notLeaderHandlerRegistry.getHandler(handlerClass);
+//                    try {
+//                        Object bean = applicationContext.getBean(handlerClass);
+//                        handlerMethod.invoke(bean);
+//                    } catch (IllegalAccessException | InvocationTargetException e) {
+//                        throw new RuntimeException("Failed to invoke handler method", e);
+//                    }
+//                }
+//            }
+//        }, eventaTaskExecutor());
+//        try {
+//            leaderLatch.start();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        return leaderLatch;
+//    }
 
     @Bean
     public TaskExecutor eventaTaskExecutor() {

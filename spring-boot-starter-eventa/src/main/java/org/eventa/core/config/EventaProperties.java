@@ -17,4 +17,6 @@ public class EventaProperties {
     private MongoDBProperties mongodb;
     @NestedConfigurationProperty
     private KafkaProperties kafka;
+    @NestedConfigurationProperty
+    private CuratorProperties curator;
 }

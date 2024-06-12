@@ -2,7 +2,6 @@ package org.eventa.core.commands;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.eventa.core.messages.Message;

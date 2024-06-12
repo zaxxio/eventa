@@ -26,6 +26,8 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
     private final EventHandlerRegistry eventHandlerRegistry;
     private final QueryHandlerRegistry queryHandlerRegistry;
     private final SagaHandlerRegistry sagaHandlerRegistry;
+    private final LeaderHandlerRegistry leaderHandlerRegistry;
+    private final NotLeaderHandlerRegistry notLeaderHandlerRegistry;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -110,6 +112,19 @@ public class PostProcessor implements ApplicationListener<ContextRefreshedEvent>
                 }
                 if (method.isAnnotationPresent(SagaEventHandler.class)) {
                     sagaHandlerRegistry.registerSagaEventHandler(method.getParameterTypes()[0], method);
+                }
+            }
+        }
+
+        for (String contextBeanDefinitionName : this.applicationContext.getBeanDefinitionNames()) {
+            Object bean = this.applicationContext.getBean(contextBeanDefinitionName);
+            Class<?> clazz = AopProxyUtils.ultimateTargetClass(bean);
+            for (Method method : clazz.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Leader.class)) {
+                    leaderHandlerRegistry.registerHandler(clazz, method);
+                }
+                if (method.isAnnotationPresent(NotLeader.class)) {
+                    notLeaderHandlerRegistry.registerHandler(clazz, method);
                 }
             }
         }

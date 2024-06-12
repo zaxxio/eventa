@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @RequiredArgsConstructor
 public class KafkaEventProducer implements EventProducer {
+
     @Value("${eventa.kafka.event-bus}")
     private String eventStoreName;
     private final KafkaTemplate<UUID, Object> kafkaTemplate;
@@ -41,7 +42,7 @@ public class KafkaEventProducer implements EventProducer {
         CompletableFuture<? extends SendResult<UUID, ?>> future = kafkaTemplate.send(message);
         future.thenAccept(uuidSendResult -> {
             try {
-                log.info("Produced : {}", future.get().getProducerRecord().value());
+                log.info("Produced : {}, Offset {}", future.get().getProducerRecord().value(), future.get().getRecordMetadata().offset());
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
@@ -67,6 +68,7 @@ public class KafkaEventProducer implements EventProducer {
 
         return future.thenApply(sendResult -> {
             try {
+                log.info("Produced : {}, Offset {}", future.get().getProducerRecord().value(), future.get().getRecordMetadata().offset());
                 return sendResult.getProducerRecord().key().toString();
             } catch (Exception e) {
                 log.error("Error producing Kafka message", e);
