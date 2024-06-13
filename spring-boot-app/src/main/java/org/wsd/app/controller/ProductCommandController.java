@@ -41,6 +41,7 @@ public class ProductCommandController {
 
     @PutMapping
     public ResponseEntity<?> updateProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        final List<String> processed = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {
             final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
                     .id(productDTO.getId())
@@ -48,9 +49,10 @@ public class ProductCommandController {
                     .quantity(productDTO.getQuantity())
                     .price(productDTO.getPrice())
                     .build();
-            this.commandDispatcher.send(updateProductCommand);
+            String id = this.commandDispatcher.send(updateProductCommand);
+            processed.add(id);
         }
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(processed);
     }
 
     @DeleteMapping

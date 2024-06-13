@@ -17,6 +17,9 @@ eventa:
     database: events_store
     authentication-database: admin
 
+server:
+  port: 8080
+
 spring:
   application:
     name: spring-boot-app
