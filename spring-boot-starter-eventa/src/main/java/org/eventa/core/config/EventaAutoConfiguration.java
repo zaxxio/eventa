@@ -9,8 +9,7 @@ import org.apache.curator.framework.recipes.leader.LeaderLatch;
 import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.eventa.core.interceptor.CommandInterceptorRegisterer;
-import org.eventa.core.registry.LeaderHandlerRegistry;
-import org.eventa.core.registry.NotLeaderHandlerRegistry;
+import org.eventa.core.registry.*;
 import org.eventa.core.repository.EventStoreRepository;
 import org.eventa.core.repository.SagaStateRepository;
 import org.springframework.beans.BeansException;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -63,52 +61,66 @@ public class EventaAutoConfiguration implements BeanFactoryAware {
     }
 
 
-//    @Bean(initMethod = "start", destroyMethod = "close")
-//    @ConditionalOnMissingBean
-//    public CuratorFramework curatorFramework() {
-//        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(eventaProperties.getCurator().getHostname()
-//                , new ExponentialBackoffRetry(eventaProperties.getCurator().getBaseSleepTimeMs(), eventaProperties.getCurator().getMaxRetries()));
-//        return curatorFramework;
-//    }
-//
-//    @Bean
-//    @ConditionalOnMissingBean
-//    public LeaderLatch leaderLatch(CuratorFramework curatorFramework, ApplicationContext applicationContext) {
-//        LeaderLatch leaderLatch = new LeaderLatch(curatorFramework, "/leader/latch");
-//        leaderLatch.addListener(new LeaderLatchListener() {
-//            @Override
-//            public void isLeader() {
-//                for (Class<?> handlerClass : leaderHandlerRegistry.getRegisteredClasses()) {
-//                    Method handlerMethod = leaderHandlerRegistry.getHandler(handlerClass);
-//                    try {
-//                        Object bean = applicationContext.getBean(handlerClass);
-//                        handlerMethod.invoke(bean);
-//                    } catch (IllegalAccessException | InvocationTargetException e) {
-//                        throw new RuntimeException("Failed to invoke handler method", e);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void notLeader() {
-//                for (Class<?> handlerClass : notLeaderHandlerRegistry.getRegisteredClasses()) {
-//                    Method handlerMethod = notLeaderHandlerRegistry.getHandler(handlerClass);
-//                    try {
-//                        Object bean = applicationContext.getBean(handlerClass);
-//                        handlerMethod.invoke(bean);
-//                    } catch (IllegalAccessException | InvocationTargetException e) {
-//                        throw new RuntimeException("Failed to invoke handler method", e);
-//                    }
-//                }
-//            }
-//        }, eventaTaskExecutor());
-//        try {
-//            leaderLatch.start();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//        return leaderLatch;
-//    }
+    @Bean(initMethod = "start", destroyMethod = "close")
+    @ConditionalOnMissingBean
+    public CuratorFramework curatorFramework() {
+        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(eventaProperties.getCurator().getHostname(),
+                new ExponentialBackoffRetry(eventaProperties.getCurator().getBaseSleepTimeMs(), eventaProperties.getCurator().getMaxRetries()));
+        curatorFramework.start();
+        try {
+            curatorFramework.blockUntilConnected();
+            if (curatorFramework.getZookeeperClient().isConnected()) {
+                log.info("Connected to ZooKeeper");
+            } else {
+                throw new RuntimeException("Failed to connect to ZooKeeper");
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Failed to connect to Zookeeper", e);
+        }
+        return curatorFramework;
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean
+    public LeaderLatch leaderLatch(CuratorFramework curatorFramework, ApplicationContext applicationContext) {
+        LeaderLatch leaderLatch = new LeaderLatch(curatorFramework, "/leader/latch");
+        leaderLatch.addListener(new LeaderLatchListener() {
+            @Override
+            public void isLeader() {
+                for (Class<?> handlerClass : leaderHandlerRegistry.getRegisteredClasses()) {
+                    Method handlerMethod = leaderHandlerRegistry.getHandler(handlerClass);
+                    try {
+                        Object bean = applicationContext.getBean(handlerClass);
+                        handlerMethod.invoke(bean);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException("Failed to invoke handler method", e);
+                    }
+                }
+            }
+
+            @Override
+            public void notLeader() {
+                for (Class<?> handlerClass : notLeaderHandlerRegistry.getRegisteredClasses()) {
+                    Method handlerMethod = notLeaderHandlerRegistry.getHandler(handlerClass);
+                    try {
+                        Object bean = applicationContext.getBean(handlerClass);
+                        handlerMethod.invoke(bean);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException("Failed to invoke handler method", e);
+                    }
+                }
+            }
+        }, new SimpleAsyncTaskExecutor());
+        try {
+            leaderLatch.start();
+            leaderLatch.await(); // Ensure latch starts and awaits leadership decision
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return leaderLatch;
+    }
+
 
     @Bean
     public TaskExecutor eventaTaskExecutor() {

@@ -56,52 +56,6 @@ public class ProductAggregate extends AggregateRoot {
         );
     }
 
-    @CommandHandler
-    public void handle(ReserveProductCommand reserveProductCommand) {
-
-        if (reserveProductCommand.getProductName() == null) {
-            throw new RuntimeException("Product name can not be null or empty.");
-        }
-
-        if (reserveProductCommand.getQuantity() <= 0) {
-            throw new RuntimeException("Product quantity can not be less than or equal 0.");
-        }
-
-        apply(
-                ProductReservedEvent.builder()
-                        .id(reserveProductCommand.getId())
-                        .productName(reserveProductCommand.getProductName())
-                        .threadName(Thread.currentThread().getName())
-                        .quantity(reserveProductCommand.getQuantity())
-                        .price(reserveProductCommand.getPrice())
-                        .build()
-        );
-    }
-
-    @CommandHandler
-    public void handle(ProcessPaymentCommand processPaymentCommand) {
-        apply(
-                PaymentProcessedEvent.builder()
-                        .id(processPaymentCommand.getId())
-                        .build()
-        );
-    }
-
-    @EventSourcingHandler
-    public void on(PaymentProcessedEvent paymentProcessedEvent) {
-        super.id = paymentProcessedEvent.getProductId();
-    }
-
-
-
-    @EventSourcingHandler
-    public void on(ProductReservedEvent productReservedEvent) {
-        this.productName = productReservedEvent.getProductName();
-        this.price = productReservedEvent.getPrice();
-        this.quantity -= 1;
-        this.threadName = productReservedEvent.getThreadName();
-    }
-
     @EventSourcingHandler
     public void on(ProductCreatedEvent productCreatedEvent) {
         this.productName = productCreatedEvent.getProductName();
@@ -157,5 +111,51 @@ public class ProductAggregate extends AggregateRoot {
         this.threadName = productDeletedEvent.getThreadName();
 
     }
+
+
+    @CommandHandler
+    public void handle(ReserveProductCommand reserveProductCommand) {
+
+        if (reserveProductCommand.getProductName() == null) {
+            throw new RuntimeException("Product name can not be null or empty.");
+        }
+
+        if (reserveProductCommand.getQuantity() <= 0) {
+            throw new RuntimeException("Product quantity can not be less than or equal 0.");
+        }
+
+        apply(
+                ProductReservedEvent.builder()
+                        .id(reserveProductCommand.getId())
+                        .productName(reserveProductCommand.getProductName())
+                        .threadName(Thread.currentThread().getName())
+                        .quantity(reserveProductCommand.getQuantity())
+                        .price(reserveProductCommand.getPrice())
+                        .build()
+        );
+    }
+
+    @EventSourcingHandler
+    public void on(ProductReservedEvent productReservedEvent) {
+        this.productName = productReservedEvent.getProductName();
+        this.price = productReservedEvent.getPrice();
+        this.quantity -= 1;
+        this.threadName = productReservedEvent.getThreadName();
+    }
+
+    @CommandHandler
+    public void handle(ProcessPaymentCommand processPaymentCommand) {
+        apply(
+                PaymentProcessedEvent.builder()
+                        .id(processPaymentCommand.getId())
+                        .build()
+        );
+    }
+
+    @EventSourcingHandler
+    public void on(PaymentProcessedEvent paymentProcessedEvent) {
+        super.id = paymentProcessedEvent.getProductId();
+    }
+
 
 }
