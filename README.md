@@ -469,11 +469,13 @@ public class SuperpositionService {
 ## Infrastructure Dependency
 ```yaml
 eventa:
+  # Handle Base Event 
   kafka:
     bootstrap-servers: localhost:9092
     trusted-packages:
     command-bus: BaseCommand
     event-bus: BaseEvent
+  # Work as Event-Store
   mongodb:
     username: username
     password: password
@@ -481,6 +483,11 @@ eventa:
     host: localhost
     database: events_store
     authentication-database: admin
+  # Distributed Coordinator
+  curator:
+    hostname: localhost:2181
+    base-sleep-time-ms: 1000
+    max-retries: 5
     
 spring:
   application:
