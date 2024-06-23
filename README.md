@@ -191,7 +191,6 @@ public class ProductProjection {
 ```
 ##  Command Dispatcher
 ```java
-
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -200,8 +199,8 @@ public class ProductCommandController {
     private final CommandDispatcher commandDispatcher;
 
     @PostMapping
+    @DistributedLock(value = "createProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
     public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
-
         final List<String> processed = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {
             final CreateProductCommand createProductCommand = CreateProductCommand.builder()
@@ -210,16 +209,17 @@ public class ProductCommandController {
                     .quantity(productDTO.getQuantity())
                     .price(productDTO.getPrice())
                     .build();
-            String id = this.commandDispatcher.send(createProductCommand);
+            final String id = this.commandDispatcher.send(createProductCommand);
             processed.add(id);
         }
-
         return ResponseEntity.ok(processed);
     }
 
 
     @PutMapping
+    @DistributedLock(value = "updateProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
     public ResponseEntity<?> updateProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        final List<String> processed = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {
             final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
                     .id(productDTO.getId())
@@ -227,12 +227,14 @@ public class ProductCommandController {
                     .quantity(productDTO.getQuantity())
                     .price(productDTO.getPrice())
                     .build();
-            this.commandDispatcher.send(updateProductCommand);
+            String id = this.commandDispatcher.send(updateProductCommand);
+            processed.add(id);
         }
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(processed);
     }
 
     @DeleteMapping
+    @DistributedLock(value = "deleteProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
     public ResponseEntity<?> deleteProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
         for (ProductDTO productDTO : productDTOS) {
             final DeleteProductCommand deleteProductCommand = DeleteProductCommand.builder()
@@ -248,6 +250,7 @@ public class ProductCommandController {
     }
 
 }
+
 ```
 
 ## Query Dispatcher
