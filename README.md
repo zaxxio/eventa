@@ -382,6 +382,34 @@ public class ProductSaga {
 
 
 ```
+# Distributed Locks
+```java
+@RestController
+@RequestMapping("/api/products")
+@RequiredArgsConstructor
+public class ProductCommandController {
+
+    private final CommandDispatcher commandDispatcher;
+
+    @PostMapping
+    @DistributedLock(value = "createProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
+    public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        final List<String> processed = new ArrayList<>();
+        for (ProductDTO productDTO : productDTOS) {
+            final CreateProductCommand createProductCommand = CreateProductCommand.builder()
+                    .id(UUID.randomUUID())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
+            final String id = this.commandDispatcher.send(createProductCommand);
+            processed.add(id);
+        }
+        return ResponseEntity.ok(processed);
+    }
+}
+```
+# Distributed Leader Election
 ## Distributed Leader Not Leader
 ```java
 @Log4j2

@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(servers = {
-        @Server(url = "http://localhost:8080"),
-        @Server(url = "http://avaand.com:8080")
-})
+//@OpenAPIDefinition(servers = {
+//        @Server(url = "http://localhost:8080"),
+//        @Server(url = "http://avaand.com:8080")
+//})
 public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {

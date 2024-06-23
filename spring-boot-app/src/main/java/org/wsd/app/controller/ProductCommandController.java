@@ -2,8 +2,7 @@ package org.wsd.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.eventa.core.dispatcher.CommandDispatcher;
-import org.eventa.core.tag.ApiVersion;
-import org.springframework.data.repository.query.parser.PartTree;
+import org.eventa.core.streotype.DistributedLock;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.wsd.app.commands.product.CreateProductCommand;
@@ -14,6 +13,7 @@ import org.wsd.app.model.ProductDTO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/products")
@@ -23,6 +23,7 @@ public class ProductCommandController {
     private final CommandDispatcher commandDispatcher;
 
     @PostMapping
+    @DistributedLock(value = "createProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
     public ResponseEntity<?> createProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
         final List<String> processed = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {

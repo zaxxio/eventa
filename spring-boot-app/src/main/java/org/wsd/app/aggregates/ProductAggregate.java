@@ -109,7 +109,6 @@ public class ProductAggregate extends AggregateRoot {
         this.price = productDeletedEvent.getPrice();
         this.quantity = productDeletedEvent.getQuantity();
         this.threadName = productDeletedEvent.getThreadName();
-
     }
 
 
