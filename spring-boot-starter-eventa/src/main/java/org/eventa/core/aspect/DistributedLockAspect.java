@@ -25,7 +25,6 @@ import org.eventa.core.streotype.DistributedLock;
 
 @Aspect
 @Component
-@Log4j2
 public class DistributedLockAspect {
 
     private static final Logger log = LogManager.getLogger(DistributedLockAspect.class);
