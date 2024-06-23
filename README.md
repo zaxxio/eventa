@@ -407,10 +407,44 @@ public class ProductCommandController {
         }
         return ResponseEntity.ok(processed);
     }
+
+
+    @PutMapping
+    @DistributedLock(value = "updateProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
+    public ResponseEntity<?> updateProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        final List<String> processed = new ArrayList<>();
+        for (ProductDTO productDTO : productDTOS) {
+            final UpdateProductCommand updateProductCommand = UpdateProductCommand.builder()
+                    .id(productDTO.getId())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
+            String id = this.commandDispatcher.send(updateProductCommand);
+            processed.add(id);
+        }
+        return ResponseEntity.ok(processed);
+    }
+
+    @DeleteMapping
+    @DistributedLock(value = "deleteProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
+    public ResponseEntity<?> deleteProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        for (ProductDTO productDTO : productDTOS) {
+            final DeleteProductCommand deleteProductCommand = DeleteProductCommand.builder()
+                    .id(productDTO.getId())
+                    .productName(productDTO.getProductName())
+                    .quantity(productDTO.getQuantity())
+                    .price(productDTO.getPrice())
+                    .build();
+
+            this.commandDispatcher.send(deleteProductCommand);
+        }
+        return ResponseEntity.ok("");
+    }
+
 }
 ```
 # Distributed Leader Election
-## Distributed Leader Not Leader
 ```java
 @Log4j2
 @Service

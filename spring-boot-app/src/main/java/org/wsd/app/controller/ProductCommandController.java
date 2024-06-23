@@ -41,6 +41,7 @@ public class ProductCommandController {
 
 
     @PutMapping
+    @DistributedLock(value = "updateProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
     public ResponseEntity<?> updateProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
         final List<String> processed = new ArrayList<>();
         for (ProductDTO productDTO : productDTOS) {
@@ -57,6 +58,7 @@ public class ProductCommandController {
     }
 
     @DeleteMapping
+    @DistributedLock(value = "deleteProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
     public ResponseEntity<?> deleteProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
         for (ProductDTO productDTO : productDTOS) {
             final DeleteProductCommand deleteProductCommand = DeleteProductCommand.builder()
