@@ -16,8 +16,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/api/products")
 @RequiredArgsConstructor
+@RequestMapping("/api/products")
 public class ProductCommandController {
 
     private final CommandDispatcher commandDispatcher;
@@ -60,6 +60,7 @@ public class ProductCommandController {
     @DeleteMapping
     @DistributedLock(value = "deleteProduct", timeout = 5, timeUnit = TimeUnit.SECONDS)
     public ResponseEntity<?> deleteProduct(@RequestBody List<ProductDTO> productDTOS) throws Exception {
+        List<String> processed = new ArrayList<>(100);
         for (ProductDTO productDTO : productDTOS) {
             final DeleteProductCommand deleteProductCommand = DeleteProductCommand.builder()
                     .id(productDTO.getId())
@@ -68,9 +69,10 @@ public class ProductCommandController {
                     .price(productDTO.getPrice())
                     .build();
 
-            this.commandDispatcher.send(deleteProductCommand);
+            String id = this.commandDispatcher.send(deleteProductCommand);
+            processed.add(id);
         }
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(processed);
     }
 
 }
