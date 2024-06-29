@@ -103,5 +103,8 @@ networks:
     driver: bridge
 
 volumes:
+  teamcity_server_data:
+  teamcity_server_logs:
+  teamcity_agent_conf:
   mongo-data:
   minio_data:

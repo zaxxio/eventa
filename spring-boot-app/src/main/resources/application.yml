@@ -20,9 +20,9 @@ eventa:
 server:
   port: 8080
 
-logging:
-  pattern:
-    console: "%clr(TS=){faint}%clr(%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z', UTC}){faint} [%t] %clr(APP=){faint}%clr(${spring.application.name:null}){yellow} %clr(LEVEL=){faint}%clr(${LOG_LEVEL_PATTERN:%p}) %clr(CLASS=){faint}%clr(%logger{26}){cyan} %clr(REQUEST_ID=){faint}%clr(%X{X-Correlation-Id:-null}){reverse} | %m%n%ex"
+#logging:
+#  pattern:
+#    console: "%clr(TS=){faint}%clr(%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z', UTC}){faint} [%t] %clr(APP=){faint}%clr(${spring.application.name:null}){yellow} %clr(LEVEL=){faint}%clr(${LOG_LEVEL_PATTERN:%p}) %clr(CLASS=){faint}%clr(%logger{26}){cyan} %clr(REQUEST_ID=){faint}%clr(%X{X-Correlation-Id:-null}){reverse} | %m%n%ex"
 
 spring:
   application:
