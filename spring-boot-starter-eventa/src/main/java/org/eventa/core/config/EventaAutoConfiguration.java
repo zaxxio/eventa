@@ -122,6 +122,7 @@ public class EventaAutoConfiguration implements BeanFactoryAware {
     }
 
 
+
     @Bean
     public TaskExecutor eventaTaskExecutor() {
         SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();

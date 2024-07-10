@@ -22,7 +22,6 @@ import java.util.UUID;
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@AggregateSnapshot(interval = 2)
 public class ProductAggregate extends AggregateRoot {
 
     private static final Logger log = LoggerFactory.getLogger(ProductAggregate.class);
