@@ -12,7 +12,6 @@ import org.eventa.core.eventstore.EventStore;
 import org.eventa.core.factory.AggregateFactory;
 import org.eventa.core.interceptor.CommandInterceptorRegisterer;
 import org.eventa.core.registry.CommandHandlerRegistry;
-import org.eventa.core.repository.SnapshotRepository;
 import org.eventa.core.streotype.CommandHandler;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
@@ -33,19 +31,16 @@ public class CommandDispatcherImpl implements CommandDispatcher {
     private final CommandHandlerRegistry commandHandlerRegistry;
     private final AggregateFactory aggregateFactory;
     private final EventStore eventStore;
-    private final SnapshotRepository snapshotRepository;
     private final CacheConcurrentHashMap<UUID, Lock> locks = new CacheConcurrentHashMap<>( 10); // LRUCache
 
     public CommandDispatcherImpl(CommandInterceptorRegisterer commandInterceptorRegisterer,
                                  CommandHandlerRegistry commandHandlerRegistry,
                                  AggregateFactory aggregateFactory,
-                                 EventStore eventStore,
-                                 SnapshotRepository snapshotRepository) {
+                                 EventStore eventStore) {
         this.commandInterceptorRegisterer = commandInterceptorRegisterer;
         this.commandHandlerRegistry = commandHandlerRegistry;
         this.aggregateFactory = aggregateFactory;
         this.eventStore = eventStore;
-        this.snapshotRepository = snapshotRepository;
     }
 
     private Lock getLock(UUID aggregateId) {
